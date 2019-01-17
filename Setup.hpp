@@ -1,0 +1,70 @@
+#pragma once
+
+#include <simpleini/SimpleIni.h>
+#include "spdlog/spdlog.h"
+
+namespace Lightning
+{
+
+class Setup 
+{
+    public:
+        Setup()
+        {
+            _file = _KDefaultSetupFile;
+        }
+
+        Setup(std::string file)
+            : _file(file)
+        {
+
+        }
+
+        void Load()
+        {
+            _ini.LoadFile(_file.c_str());
+
+            // Camera
+            CameraId = _ini.GetLongValue("Camera", "CameraId", CameraId);
+
+            // Diagnostics
+            UseTestImage = _ini.GetBoolValue("Diagnostics", "UseTestImage", UseTestImage);
+            TestImagePath = _ini.GetValue("Diagnostics", "TestImagePath");
+            LogLevel = _ini.GetLongValue("Diagnostics", "LogLevel", LogLevel);
+            DisplayImages = _ini.GetBoolValue("Diagnostics", "DisplayImages", DisplayImages);
+            RecordVideo = _ini.GetBoolValue("Diagnostics", "RecordVideo", RecordVideo);
+        }
+
+        /* 
+            Camera
+        */
+
+        // ID of camera to use for targetting
+        long CameraId = 0;
+
+        /*
+            Diagnostics
+        */
+
+        // Flag to read test image from disk
+        bool UseTestImage = false;
+
+        // Path to test image
+        std::string TestImagePath = "";
+
+        // Log Level
+        long LogLevel = (long)spdlog::level::debug;
+
+        // Display development images
+        bool DisplayImages = false;
+
+        // Record diagnostic video
+        bool RecordVideo = false;
+
+    private:
+        CSimpleIni _ini;
+        std::string _file;
+        std::string _KDefaultSetupFile = "setup.ini";
+};
+
+}

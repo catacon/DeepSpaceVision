@@ -1,0 +1,22 @@
+[
+{
+  "directory": "/home/aaron/FRC2019/DeepSpaceVision/build",
+  "command": "/usr/bin/g++-7   -isystem /usr/local/include/opencv4 -I/home/aaron/FRC2019/DeepSpaceVision -I/home/aaron/FRC2019/DeepSpaceVision/libs/include  -g   -o CMakeFiles/DeepSpaceVision.dir/main.cpp.o -c /home/aaron/FRC2019/DeepSpaceVision/main.cpp",
+  "file": "/home/aaron/FRC2019/DeepSpaceVision/main.cpp"
+},
+{
+  "directory": "/home/aaron/FRC2019/DeepSpaceVision/build",
+  "command": "/usr/bin/g++-7   -isystem /usr/local/include/opencv4 -I/home/aaron/FRC2019/DeepSpaceVision -I/home/aaron/FRC2019/DeepSpaceVision/libs/include  -g   -o CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o -c /home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.cpp",
+  "file": "/home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.cpp"
+},
+{
+  "directory": "/home/aaron/FRC2019/DeepSpaceVision/build",
+  "command": "/usr/bin/g++-7   -isystem /usr/local/include/opencv4 -I/home/aaron/FRC2019/DeepSpaceVision -I/home/aaron/FRC2019/DeepSpaceVision/libs/include  -g   -o CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o -c /home/aaron/FRC2019/DeepSpaceVision/TargetFinder.cpp",
+  "file": "/home/aaron/FRC2019/DeepSpaceVision/TargetFinder.cpp"
+},
+{
+  "directory": "/home/aaron/FRC2019/DeepSpaceVision/build",
+  "command": "/usr/bin/g++-7   -isystem /usr/local/include/opencv4 -I/home/aaron/FRC2019/DeepSpaceVision -I/home/aaron/FRC2019/DeepSpaceVision/libs/include  -g   -o CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o -c /home/aaron/FRC2019/DeepSpaceVision/DataSender.cpp",
+  "file": "/home/aaron/FRC2019/DeepSpaceVision/DataSender.cpp"
+}
+]
