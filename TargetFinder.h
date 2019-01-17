@@ -5,21 +5,22 @@
 #include <opencv2/opencv.hpp>
 #include "spdlog/spdlog.h"
 
-#include "Setup.hpp"
-#include "TargetModel.h"
-#include "CameraModel.h"
-
 namespace Lightning
 {
+
+class Setup;
+class TargetModel;
+class CameraModel;
+class VisionData;
 
 class TargetFinder
 {
 
 public:
 
-    TargetFinder(std::shared_ptr<Setup> setup, std::shared_ptr<spdlog::logger> logger, std::unique_ptr<TargetModel> targetModel, std::unique_ptr<CameraModel> cameraModel);
+    TargetFinder(std::shared_ptr<Setup>, std::shared_ptr<spdlog::logger>, std::unique_ptr<TargetModel>, std::unique_ptr<CameraModel>);
 
-    bool Process(cv::Mat& image);
+    bool Process(cv::Mat&, VisionData&);
 
 private:
 

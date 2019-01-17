@@ -2,10 +2,25 @@
 
 using namespace Lightning;
 
-bool DataSender::Send()
-{
-    nlohmann::json j;
+    DataSender::DataSender(std::shared_ptr<Setup> setup, std::shared_ptr<spdlog::logger> logger)
+        : _setup(setup)
+        , _logger(logger)
+        , _context(1)
+        , _socket(_context, ZMQ_PUB)
+        , _port(port)
+    {
+        _socket.bind("tcp://*:" + std::to_string(_port))
+    }
 
-    j["test"] = false;
+bool DataSender::Send(const VisionData& d)
+{
+    nlohmann::json j = d;
+    std::string s = j.dump();
+
+    zmq::message_t message;
+    std::memcpy(message.data(), s, s.length());
+
+    _socket.send(message);
+
     return true;
 }

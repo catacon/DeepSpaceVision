@@ -66,13 +66,15 @@ void DeepSpaceVision::Process()
 
         if (isImageOk)
         {
-            if (_targetFinder->Process(image))
+            VisionData data;
+
+            if (_targetFinder->Process(image, data))
             {
 
                 cv::imshow("test", image);
                 cv::waitKey(10);
 
-                if (_dataSender->Send())
+                if (_dataSender->Send(data))
                 {
 
                 }

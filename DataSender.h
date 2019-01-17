@@ -15,12 +15,8 @@ class DataSender
 {
 
 public: 
-    DataSender(std::shared_ptr<Setup> setup, std::shared_ptr<spdlog::logger> logger)
-        : _setup(setup)
-        , _logger(logger)
-    {
 
-    }
+    DataSender::DataSender(std::shared_ptr<Setup> setup, std::shared_ptr<spdlog::logger> logger, int port)
 
     bool Send();
 
@@ -29,6 +25,9 @@ private:
     std::shared_ptr<spdlog::logger> _logger;
 
     zmq::context_t _context;
+    zmq::socket_t _socket;
+
+    int _port;
     
 };
 
