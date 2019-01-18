@@ -12,7 +12,8 @@ DataSender::DataSender(std::shared_ptr<Setup> setup, std::shared_ptr<spdlog::log
     , _context(1)
     , _socket(_context, ZMQ_PUB)
 {
-    _socket.bind("tcp://*:" + std::to_string(setup->DataPort));
+    std::string s = std::string("tcp://*:" + std::to_string((int)setup->DataPort));
+    _socket.connect("tcp://127.0.0.1:5556");
 }
 
 bool DataSender::Send(const VisionData& d)
@@ -20,7 +21,7 @@ bool DataSender::Send(const VisionData& d)
     nlohmann::json j = d;
     std::string s = j.dump();
 
-    zmq::message_t message;
+    zmq::message_t message(s.length());
     std::memcpy(message.data(), s.c_str(), s.length());
 
     _socket.send(message);
