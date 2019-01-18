@@ -4,21 +4,21 @@
 
 #include "spdlog/spdlog.h"
 #include <zmq.hpp>
-#include <json.hpp>
-
-#include "Setup.hpp"
 
 namespace Lightning
 {
+
+class VisionData;
+class Setup;
 
 class DataSender
 {
 
 public: 
 
-    DataSender::DataSender(std::shared_ptr<Setup> setup, std::shared_ptr<spdlog::logger> logger, int port)
+    DataSender(std::shared_ptr<Setup>, std::shared_ptr<spdlog::logger>);
 
-    bool Send();
+    bool Send(const VisionData&);
 
 private:
     std::shared_ptr<Setup> _setup;
@@ -26,8 +26,6 @@ private:
 
     zmq::context_t _context;
     zmq::socket_t _socket;
-
-    int _port;
     
 };
 

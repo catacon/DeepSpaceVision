@@ -6,10 +6,12 @@
 
 namespace Lightning
 {
+
 class VisionData
 {
 public:
 
+/*
     VisionData()
         : status(VisionStatus::NotRunning)
         , x(0.0)
@@ -33,20 +35,7 @@ public:
     {
 
     }
-
-    void to_json(nlohmann::json& j, const VisionData& d) {
-        j = nlohmann::json{{"status", (int)d.status}, {"x", d.x}, {"y", d.y}, {"z", d.z}, {"roll", d.roll}, {"pitch", d.pitch}, {"yaw", d.yaw}};
-    }
-
-    void from_json(const nlohmann::json& j, VisionData& d) {
-        j.at("status").get_to(d.status);
-        j.at("x").get_to(d.x);
-        j.at("y").get_to(d.y);
-        j.at("z").get_to(d.z);
-        j.at("roll").get_to(d.roll);
-        j.at("pitch").get_to(d.pitch);
-        j.at("yaw").get_to(d.yaw);
-    }
+    */
 
     VisionStatus status;
     double x;
@@ -56,4 +45,19 @@ public:
     double pitch;
     double yaw;
 };
+
+    inline void to_json(nlohmann::json& j, const VisionData& d) {
+        j = nlohmann::json{{"status", (int)d.status}, {"x", d.x}, {"y", d.y}, {"z", d.z}, {"roll", d.roll}, {"pitch", d.pitch}, {"yaw", d.yaw}};
+    }
+
+    inline void from_json(const nlohmann::json& j, VisionData& d) {
+        j.at("status").get_to(d.status);
+        j.at("x").get_to(d.x);
+        j.at("y").get_to(d.y);
+        j.at("z").get_to(d.z);
+        j.at("roll").get_to(d.roll);
+        j.at("pitch").get_to(d.pitch);
+        j.at("yaw").get_to(d.yaw);
+    }
+
 }

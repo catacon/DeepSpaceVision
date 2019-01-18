@@ -1,16 +1,19 @@
+#include <json.hpp>
+
 #include "DataSender.h"
+#include "VisionData.hpp"
+#include "Setup.hpp"
 
 using namespace Lightning;
 
-    DataSender::DataSender(std::shared_ptr<Setup> setup, std::shared_ptr<spdlog::logger> logger)
-        : _setup(setup)
-        , _logger(logger)
-        , _context(1)
-        , _socket(_context, ZMQ_PUB)
-        , _port(port)
-    {
-        _socket.bind("tcp://*:" + std::to_string(_port))
-    }
+DataSender::DataSender(std::shared_ptr<Setup> setup, std::shared_ptr<spdlog::logger> logger)
+    : _setup(setup)
+    , _logger(logger)
+    , _context(1)
+    , _socket(_context, ZMQ_PUB)
+{
+    _socket.bind("tcp://*:" + std::to_string(setup->DataPort));
+}
 
 bool DataSender::Send(const VisionData& d)
 {
@@ -18,7 +21,7 @@ bool DataSender::Send(const VisionData& d)
     std::string s = j.dump();
 
     zmq::message_t message;
-    std::memcpy(message.data(), s, s.length());
+    std::memcpy(message.data(), s.c_str(), s.length());
 
     _socket.send(message);
 

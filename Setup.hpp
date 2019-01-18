@@ -27,6 +27,9 @@ class Setup
             // Camera
             CameraId = _ini.GetLongValue("Camera", "CameraId", CameraId);
 
+            // Network
+            DataPort = _ini.GetLongValue("Network", "DataPort", DataPort);
+
             // Diagnostics
             UseTestImage = _ini.GetBoolValue("Diagnostics", "UseTestImage", UseTestImage);
             TestImagePath = _ini.GetValue("Diagnostics", "TestImagePath");
@@ -41,6 +44,11 @@ class Setup
 
         // ID of camera to use for targetting
         long CameraId = 0;
+
+        /*
+            Network
+        */
+       long DataPort = 5801;
 
         /*
             Diagnostics

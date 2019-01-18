@@ -4,16 +4,16 @@
 
 using namespace Lightning;
 
-    TargetFinder::TargetFinder(std::shared_ptr<Setup> setup, std::shared_ptr<spdlog::logger> logger, std::unique_ptr<TargetModel> targetModel, std::unique_ptr<CameraModel> cameraModel)
+    TargetFinder::TargetFinder(std::shared_ptr<Setup> setup, std::shared_ptr<spdlog::logger> logger, TargetModel targetModel, CameraModel cameraModel)
         : _setup(setup)
         , _logger(logger)
-        , _targetModel(std::move(targetModel))
-        , _cameraModel(std::move(cameraModel))
+        , _targetModel(targetModel)
+        , _cameraModel(cameraModel)
     {
 
     }
 
-bool TargetFinder::Process(cv::Mat& image)
+bool TargetFinder::Process(cv::Mat& image, VisionData& data)
 {
     // Convert image to HSV
 
