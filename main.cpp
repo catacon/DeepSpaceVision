@@ -16,7 +16,7 @@ std::shared_ptr<Lightning::Setup> setup;
 // Logger
 std::vector<spdlog::sink_ptr> sinks {
     std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>(),
-    std::make_shared<spdlog::sinks::simple_file_sink_mt>("log.txt")
+    std::make_shared<spdlog::sinks::simple_file_sink_mt>("DeepSpaceVision.log")
 };
 
 std::shared_ptr<spdlog::logger> logger;
@@ -34,7 +34,7 @@ int main(int, char**) {
     setup->Load();
 
     // Logger
-    logger = std::make_shared<spdlog::logger>("multisink", sinks.begin(), sinks.end());
+    logger = std::make_shared<spdlog::logger>("DeepSpaceVision", sinks.begin(), sinks.end());
     logger->set_level((spdlog::level::level_enum)setup->LogLevel);
 
     logger->debug("Starting DeepSpaceVision");
