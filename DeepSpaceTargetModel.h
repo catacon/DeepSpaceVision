@@ -24,6 +24,7 @@ public:
         };
 
         _targetAxes = std::vector<cv::Point3d> {
+            {0,0,0},
             {10,0,0},
             {0,10,0},
             {0,0,10}

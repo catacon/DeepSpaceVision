@@ -7,9 +7,8 @@
 
 using namespace Lightning;
 
-DeepSpaceVision::DeepSpaceVision(std::shared_ptr<Setup> setup, std::shared_ptr<spdlog::logger> logger)
-    : _setup(setup)
-    , _logger(logger)
+DeepSpaceVision::DeepSpaceVision(std::shared_ptr<spdlog::logger> logger)
+    : _logger(logger)
     , _targetCapture(std::make_unique<cv::VideoCapture>(setup->CameraId))
     , _targetFinder(std::make_unique<TargetFinder>(setup, logger, DeepSpaceTargetModel(), CameraModel()))
     , _dataSender(std::make_unique<DataSender>(setup, logger))
@@ -49,11 +48,17 @@ void DeepSpaceVision::Process()
 
     while (_runProcessing)
     {
+        // If desired, reread setup file to update values
+        if (Setup::Diagnostics::ReadSetupFile)
+        {
+            Setup::LoadSetup();
+        }
+
         cv::Mat image;
 
-        if (_setup->UseTestImage)
+        if (Setup::Diagnostics::UseTestImage)
         {
-            image = cv::imread(_setup->TestImagePath);
+            image = cv::imread(Setup::Diagnostics::TestImagePath);
         }
         else
         {
@@ -87,14 +92,14 @@ void DeepSpaceVision::Process()
                 _logger->error("Failed to process image");   // TODO add error code
             }
 
-            if (_setup->DebugImages)
+            if (Setup::Diagnostics::DisplayDebugImages)
             {
                 _targetFinder->ShowDebugImages();
             }
         }
         else
         {
-            _logger->error("Failed to read from {0}", _setup->UseTestImage ? "File" : "Target Capture");
+            _logger->error("Failed to read from {0}", Setup::Diagnostics::UseTestImage ? "File" : "Target Capture");
         }
     }
 

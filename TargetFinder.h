@@ -43,7 +43,7 @@ class TargetFinder
 
 public:
 
-    TargetFinder(std::shared_ptr<Setup>, std::shared_ptr<spdlog::logger>, TargetModel, CameraModel);
+    TargetFinder(std::shared_ptr<spdlog::logger>, TargetModel, CameraModel);
 
     bool Process(cv::Mat&, VisionData&);
 
@@ -69,8 +69,9 @@ private:
 
     double Distance(const cv::Point2d&, const cv::Point2d&);
 
+    cv::Vec3d EulerAnglesFromRotationMaxtrix(const cv::Mat&);
+
     std::shared_ptr<spdlog::logger> _logger;
-    std::shared_ptr<Setup> _setup;
 
     TargetModel _targetModel;
     CameraModel _cameraModel;

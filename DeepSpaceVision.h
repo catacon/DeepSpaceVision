@@ -15,7 +15,7 @@ namespace Lightning
 class DeepSpaceVision
 {
 public:
-    DeepSpaceVision(std::shared_ptr<Setup>, std::shared_ptr<spdlog::logger>);
+    DeepSpaceVision(std::shared_ptr<spdlog::logger>);
 
     bool StartProcessing();
 
@@ -27,7 +27,6 @@ private:
 
     void Process();
 
-    std::shared_ptr<Setup> _setup;
     std::shared_ptr<spdlog::logger> _logger;
 
     std::unique_ptr<cv::VideoCapture> _targetCapture;

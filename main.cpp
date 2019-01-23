@@ -10,9 +10,6 @@
 std::atomic<bool> run(true);
 void sigint_handler(int signal);
 
-// Setup
-std::shared_ptr<Lightning::Setup> setup;
-
 // Logger
 std::vector<spdlog::sink_ptr> sinks {
     std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>(),
@@ -30,12 +27,11 @@ int main(int, char**) {
     signal(SIGINT, sigint_handler);
 
     // Setup
-    setup = std::make_shared<Lightning::Setup>();
-    setup->Load();
+    Setup::LoadSetup();
 
     // Logger
     logger = std::make_shared<spdlog::logger>("DeepSpaceVision", sinks.begin(), sinks.end());
-    logger->set_level((spdlog::level::level_enum)setup->LogLevel);
+    logger->set_level(Setup::Diagnostics::LogLevel);
 
     logger->debug("Starting DeepSpaceVision");
 

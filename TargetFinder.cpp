@@ -5,9 +5,8 @@
 
 using namespace Lightning;
 
-TargetFinder::TargetFinder(std::shared_ptr<Setup> setup, std::shared_ptr<spdlog::logger> logger, TargetModel targetModel, CameraModel cameraModel)
-    : _setup(setup)
-    , _logger(logger)
+TargetFinder::TargetFinder(std::shared_ptr<spdlog::logger> logger, TargetModel targetModel, CameraModel cameraModel)
+    : _logger(logger)
     , _targetModel(targetModel)
     , _cameraModel(cameraModel)
 {
@@ -45,7 +44,7 @@ bool TargetFinder::FindContours(const cv::Mat& image, std::vector<std::vector<cv
 
     while (itc != contours.end())
     {
-        if (itc->size() < 10)   // TODO define threshold
+        if (itc->size() < Setup::Processing::ContourSizeThreshold)
         {
             itc = contours.erase(itc);
         }
@@ -57,7 +56,7 @@ bool TargetFinder::FindContours(const cv::Mat& image, std::vector<std::vector<cv
 
     if (contours.size() <= 0)
     {
-        _logger->trace("FindContours(): No contours found.");
+        _logger->debug("FindContours(): No contours found.");
         return false;
     }
 
@@ -77,7 +76,7 @@ void TargetFinder::ApproximateContours(const std::vector<std::vector<cv::Point>>
 
     for (int i = 0; i < contours.size(); ++i)
     {
-        cv::approxPolyDP(contours[i], approximation[i], 2.5, true);     // TODO threshold
+        cv::approxPolyDP(contours[i], approximation[i], Setup::Processing::ContourApproximationAccuracy, true);
 
         if (_setup->DebugImages)
         {
@@ -89,6 +88,8 @@ void TargetFinder::ApproximateContours(const std::vector<std::vector<cv::Point>>
 
 bool TargetFinder::Process(cv::Mat& image, VisionData& data)
 {
+    using namespace Setup::Processing::HSVFilter;
+
     // Convert image to HSV and gray
     cv::Mat hsvImage, grayImage;
     ConvertImage(image, hsvImage, grayImage);
@@ -96,8 +97,7 @@ bool TargetFinder::Process(cv::Mat& image, VisionData& data)
     // Filter based on color
     cv::Mat rangedImage;
 
-    // TODO define ranges and iterations 40, 30, 50 -> 100, 255, 255
-    FilterOnColor(hsvImage, rangedImage, cv::Scalar(40, 30, 50), cv::Scalar(100, 255, 200), 2);
+    FilterOnColor(hsvImage, rangedImage, cv::Scalar(LowH, LowS, LowV), cv::Scalar(HighH, HighS, HighV), MorphologyIterations);
 
     // Detect contours
     std::vector<std::vector<cv::Point>> contours;
@@ -168,12 +168,12 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
     for (int i = 0; i < (int)contours.size(); ++i)
     {
         
-        double area = cv::contourArea(contours[i], false);      // TODO params?
+        double area = cv::contourArea(contours[i], false);  
         double perimeter = cv::arcLength(contours[i], true);
 
         double shapeFactor = (4 * CV_PI * area) / std::pow(perimeter, 2);
 
-        if (shapeFactor > 0.4 && shapeFactor < 0.8)    // TODO define thresholds
+        if (shapeFactor > Setup::Processing::ShapeFactorMin && shapeFactor < Setup::Processing::ShapeFactorMax)
         {
             // Get bounding box and angle
             auto rect = cv::minAreaRect(contours[i]);
@@ -196,9 +196,9 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
             // Get corners
 
             std::vector<cv::KeyPoint> keyPoints;
-            cv::FAST(contourImage, keyPoints, 30, false, cv::FastFeatureDetector::DetectorType::TYPE_9_16);   // TODO thresholds
+            cv::FAST(contourImage, keyPoints, Setup::Processing::FastThreshold, false, cv::FastFeatureDetector::DetectorType::TYPE_9_16);
 
-            std::vector<cv::Point2f> points;
+            std::vector<cv::Point2d> points;
             for (int i = 0; i < keyPoints.size(); ++i)
             {
                 points.push_back(keyPoints[i].pt);
@@ -206,11 +206,13 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
 
             // Combine close corner points
             std::vector<int> labels;
-            int numLabels = cv::partition(points, labels, [this](cv::Point2d p1, cv::Point2d p2){ return (Distance(p1, p2) < 2); });    // TODO threshold
+            int numLabels = cv::partition(points, labels, [this](cv::Point2d p1, cv::Point2d p2){ return (Distance(p1, p2) < Setup::Processing::CornerDistanceThreshold); });
 
-            if (numLabels == 4)
+            if (numLabels == 4) // TODO define number of corners?
             {
-                std::vector<cv::Point2f> combinedPoints(numLabels);
+                std::vector<cv::Point2d> combinedPoints(numLabels);
+
+                cv::Point2d center(0, 0);
 
                 for (size_t i = 0; i < combinedPoints.size(); ++i)
                 {
@@ -237,14 +239,9 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
                     newPoint.y /= count;
 
                     combinedPoints[i] = newPoint;
-                }
 
-                cv::Point2f center(0, 0);
-
-                for (auto& pt : combinedPoints)
-                {
-                    center.x += pt.x;
-                    center.y += pt.y;
+                    center.x += newPoint.x;
+                    center.y += newPoint.y;
                 }
 
                 center.x /= combinedPoints.size();
@@ -269,14 +266,14 @@ void TargetFinder::SortTargetSections(const std::vector<TargetSection>& sections
             double angleDiff = (sections[i].angle - sections[j].angle);
             double centerDiff = Distance(sections[i].center, sections[j].center);
 
-            if (angleDiff > 90 && angleDiff < 180 && centerDiff < 160)   // TODO threshold
+            if (angleDiff > Setup::Processing::MinAngleDiff && angleDiff < Setup::Processing::MxnAngleDiff && centerDiff < Setup::Processing::MaxTargetSeparation)
             {
                 Target newTarget;
 
                 newTarget.sections.push_back(sections[i]);
                 newTarget.sections.push_back(sections[j]);
 
-                std::sort(newTarget.sections.begin(), newTarget.sections.end(), [](TargetSection& s1, TargetSection& s2){ return (s1.center. x < s2.center.x);});
+                std::sort(newTarget.sections.begin(), newTarget.sections.end(), [](TargetSection& s1, TargetSection& s2){ return (s1.center.x < s2.center.x);});
 
 
                 targets.push_back(newTarget);
@@ -297,42 +294,12 @@ void TargetFinder::RefineTargetCorners(std::vector<Target>& targets, const cv::M
         // Get sub pixels for each corner
         for (auto& section : target.sections)
         {
-            cv::cornerSubPix(image, section.corners, cv::Size(5,5), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::MAX_ITER | cv::TermCriteria::EPS, 100, 0.1)); // TODO params
+            cv::cornerSubPix(image, section.corners, cv::Size(5,5), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::MAX_ITER | cv::TermCriteria::EPS, Setup::Processing::MaxCornerSubPixelIterations, Setup::Processing::CornerSubPixelThreshold));
 
             target.center.x += section.center.x;
             target.center.y += section.center.y;
 
             std::sort(section.corners.begin(), section.corners.end(), [](cv::Point2f p1, cv::Point2f p2){ return p1.x < p1.x && p1.y > p2.y;});
-
-            // Sort corners in relation to center
-            std::vector<cv::Point2f> sortedCorners(section.corners.size());
-            for (auto c : section.corners)
-            {
-                if (c.y < target.center.y)
-                {
-                    if (c.x < section.center.x)
-                    {
-                        sortedCorners[0] = c;
-                    }
-                    else
-                    {
-                        sortedCorners[1] = c;
-                    }
-                }
-                else
-                {
-                    if (c.x < section.center.x)
-                    {
-                        sortedCorners[3] = c;
-                    }
-                    else
-                    {
-                        sortedCorners[2] = c;
-                    }
-                }
-            }
-
-            //section.corners = sortedCorners;
         }
 
         target.center.x /= target.sections.size();
@@ -370,7 +337,7 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         }
 
         // Find transform
-        bool solved = cv::solvePnP(keyPoints, imagePoints, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), rvec, tvec, false, cv::TermCriteria::MAX_ITER);
+        bool solved = cv::solvePnP(keyPoints, imagePoints, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), rvec, tvec, false, cv::SOLVEPNP_ITERATIVE);
 
         if (!solved)
         {
@@ -382,81 +349,26 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         cv::Mat Rc;
         cv::Rodrigues(rvec, Rc);
 
-        // target center in target coordinates
-        cv::Mat TTp = cv::Mat::zeros(4, 1, CV_64FC1);
-        TTp.at<double>(0,0) = 185;   // TODO Same as below??
-        TTp.at<double>(1,0) = 73.5;
-        TTp.at<double>(2,0) = 0;
-        TTp.at<double>(3,0) = 1;    // 1?
+        // Get Euler angles from rotation maxtrix
+        cv::Vec3d euler = EulerAnglesFromRotationMaxtrix(Rc);
 
-        cv::Mat TT(4, 4, Rc.type());    // T is 4x4
-        TT(cv::Range(0,3), cv::Range(0,3)) = Rc * 1;    // copies R into T
-        TT(cv::Range(0,3), cv::Range(3,4)) = tvec * 1;  // copies tvec into T
+        _logger->debug("Translation: {0:3.3f}, { 1:3.3f}, {2:3.3f}", tvec.x, tvec.y, tvec.z);
+        _logger->debug("Euler Angles: {0:3.3f}, { 1:3.3f}, {2:3.3f}", euler.x, euler.y, euler.z);
 
-        // fill last row of T
-        double * p = TT.ptr<double>(3);
-        p[0] = p[1] = p[2] = 0;
-        p[3] = 1;
+        // TODO Translate from camera to robot
 
-        cv::Mat Tp = TT * TTp;
+        // Do I need the inverse transform for anything?
+        // Should all calculations be done in target/world coordinate?
 
-        cv::Point3d targetPoint(Tp.at<double>(0,0), Tp.at<double>(1,0), Tp.at<double>(2,0));
-        cv::Point3d shooterPoint(0, 10, 0);    // TODO change
-        cv::Point3d unitPoint(0,10,0);          // TODO change
+        // Project target axis points onto image using the transformation
+        if (_setup->DebugImages)
+        {
+            auto targetAxes = targetModel.GetTargetAxes();
+            std::vector<cv::Point2d> imageAxesPoints;
 
-        //cv::Vec3d shooterVector(shooterPoint.x - unitPoint.x, 0, shooterPoint.z - unitPoint.z);
-        cv::Vec3d shooterVector(0, 10, 0);
-        //cv::Vec3d targetVector(targetPoint.x - shooterPoint.x, 0, targetPoint.z - shooterPoint.z);
-        cv::Vec3d targetVector(targetPoint.x, targetPoint.y, targetPoint.z);
+            cv::projectPoints(targetAxes, rvec, tvec, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), imageAxesPoints);
+        }
 
-        double dot = targetVector.dot(shooterVector);
-        double shooterMagnitude = std::sqrt(std::pow(shooterVector[0], 2) 
-                + std::pow(shooterVector[1], 2) + std::pow(shooterVector[2], 2));
-        double targetMagnitude = std::sqrt(std::pow(targetVector[0], 2) 
-                + std::pow(targetVector[1], 2) + std::pow(targetVector[2], 2));
-
-        double newRobotYaw =  (targetVector[0] > 0 ? 1 : -1) 
-            * ((180 / CV_PI) * std::acos(dot / (shooterMagnitude * targetMagnitude)) - 180);
-
-        // Center of shooter in camera coordinates
-        cv::Mat Sp = cv::Mat::zeros(4, 1, CV_64FC1); 
-        Sp.at<double>(0,0) = 0;
-        Sp.at<double>(1,0) = 0;
-        Sp.at<double>(2,0) = 0;
-        Sp.at<double>(3,0) = 1;
-
-        // Inverse of rotation matrix
-        cv::Mat Rt = Rc.t();
-
-        // Find inverse camera transform
-        cv::Mat t = -Rt * tvec;
-        cv::Mat T(4, 4, Rt.type()); // T is 4x4
-        T( cv::Range(0,3), cv::Range(0,3) ) = Rt * 1; // copies R into T
-        T( cv::Range(0,3), cv::Range(3,4) ) = t * 1; // copies tvec into T
-
-        // fill the last row of T (NOTE: depending on your types, use float or double)
-        p = T.ptr<double>(3);
-        p[0] = p[1] = p[2] = 0; 
-        p[3] = 1;		
-
-        // Center of shooter in target coordinates
-        cv::Mat TSp = T * Sp;
-
-        // Center of target in target coordinates
-        cv::Mat Cp = cv::Mat::zeros(4, 1, CV_64FC1); 
-        Cp.at<double>(0,0) = 185.76;    // TODO change
-        Cp.at<double>(1,0) = 73.5;
-        Cp.at<double>(2,0) = 0;
-        Cp.at<double>(3,0) = 1;
-
-        // Distance from shooter center to target center
-        double newRobotDistance = std::sqrt(std::pow(TSp.at<double>(0,0) - Cp.at<double>(0,0), 2) 
-                + std::pow(TSp.at<double>(1,0) - Cp.at<double>(1,0), 2) 
-                + std::pow(TSp.at<double>(2,0) - Cp.at<double>(2,0), 2));
-
-
-        target.distance = newRobotDistance;
-        target.yaw = newRobotYaw;
 
     }
 
@@ -479,4 +391,25 @@ void TargetFinder::ShowDebugImages()
     }
 
     cv::waitKey(10);
+}
+
+cv::Vec3d TargetFinder::EulerAnglesFromRotationMaxtrix(const cv::Mat& R)
+{     
+    double sy = sqrt(R.at<double>(0,0) * R.at<double>(0,0) +  R.at<double>(1,0) * R.at<double>(1,0) );
+ 
+    double x, y, z;
+    if (sy < 1e-6)  // Is the matrix singular
+    {
+        x = atan2(R.at<double>(2,1) , R.at<double>(2,2));
+        y = atan2(-R.at<double>(2,0), sy);
+        z = atan2(R.at<double>(1,0), R.at<double>(0,0));
+    }
+    else
+    {
+        x = atan2(-R.at<double>(1,2), R.at<double>(1,1));
+        y = atan2(-R.at<double>(2,0), sy);
+        z = 0;
+    }
+    return Vec3d(x, y, z);
+  
 }
