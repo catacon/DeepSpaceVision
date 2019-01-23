@@ -11,6 +11,7 @@ CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o: ../VisionStatus.hpp
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../json.hpp
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../CameraModel.h
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../DataSender.h
+CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../DeepSpaceTargetModel.h
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../DeepSpaceVision.cpp
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../DeepSpaceVision.h
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../Setup.hpp

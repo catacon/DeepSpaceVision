@@ -6,7 +6,7 @@
 
 namespace Lightning
 {
-class DeepSpaceTargetModel : TargetModel
+class DeepSpaceTargetModel : public TargetModel
 {
 public:
 

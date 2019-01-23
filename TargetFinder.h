@@ -33,6 +33,9 @@ public:
     std::vector<TargetSection> sections;
 
     cv::Point2f center;
+
+    double distance;
+    double yaw;
 };
 
 class TargetFinder
@@ -62,7 +65,7 @@ private:
 
     void RefineTargetCorners(std::vector<Target>&, const cv::Mat&);
 
-    void FindTargetTransforms(std::vector<Target>&, const TargetModel&);
+    void FindTargetTransforms(std::vector<Target>&, const TargetModel&, const CameraModel&);
 
     double Distance(const cv::Point2d&, const cv::Point2d&);
 

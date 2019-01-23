@@ -26,15 +26,15 @@ public:
         _cameraMatrix.at<double>(2,1) = 0;
         _cameraMatrix.at<double>(2,2) = 1;
 
-        _distanceCoefficients.at<double>(0,0) = -0.1490001736257689;
-        _distanceCoefficients.at<double>(1,0) = 0.5220732935095163;
-        _distanceCoefficients.at<double>(2,0) = 0.00142439391154711;
-        _distanceCoefficients.at<double>(3,0) = -0.002128107879961602;
-        _distanceCoefficients.at<double>(4,0) = -0.8172294974012634;
+        _distanceCoefficients.at<double>(0,0) = -0.1490001736257689 * 25.4;
+        _distanceCoefficients.at<double>(1,0) = 0.5220732935095163 * 25.4;
+        _distanceCoefficients.at<double>(2,0) = 0.00142439391154711 * 25.4;
+        _distanceCoefficients.at<double>(3,0) = -0.002128107879961602 * 25.4;
+        _distanceCoefficients.at<double>(4,0) = -0.8172294974012634 * 25.4;
     }
 
-    cv::Mat GetCameraMatrix() { return _cameraMatrix; }
-    cv::Mat GetDistanceCoefficients() { return _distanceCoefficients; }
+    cv::Mat GetCameraMatrix() const { return _cameraMatrix; }
+    cv::Mat GetDistanceCoefficients() const { return _distanceCoefficients; }
 
 private:
     cv::Mat _cameraMatrix;

@@ -2,7 +2,7 @@
 
 #include "DeepSpaceVision.h"
 #include "VisionData.hpp"
-#include "TargetModel.h"
+#include "DeepSpaceTargetModel.h"
 #include "CameraModel.h"
 
 using namespace Lightning;
@@ -11,7 +11,7 @@ DeepSpaceVision::DeepSpaceVision(std::shared_ptr<Setup> setup, std::shared_ptr<s
     : _setup(setup)
     , _logger(logger)
     , _targetCapture(std::make_unique<cv::VideoCapture>(setup->CameraId))
-    , _targetFinder(std::make_unique<TargetFinder>(setup, logger, TargetModel(), CameraModel()))
+    , _targetFinder(std::make_unique<TargetFinder>(setup, logger, DeepSpaceTargetModel(), CameraModel()))
     , _dataSender(std::make_unique<DataSender>(setup, logger))
 {
     _runProcessing.store(false);

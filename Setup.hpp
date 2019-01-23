@@ -32,7 +32,7 @@ class Setup
 
             // Diagnostics
             UseTestImage = _ini.GetBoolValue("Diagnostics", "UseTestImage", UseTestImage);
-            TestImagePath = _ini.GetValue("Diagnostics", "TestImagePath");
+            TestImagePath = _ini.GetValue("Diagnostics", "TestImagePath", "/");
             LogLevel = _ini.GetLongValue("Diagnostics", "LogLevel", LogLevel);
             DebugImages = _ini.GetBoolValue("Diagnostics", "DebugImages", DebugImages);
             RecordVideo = _ini.GetBoolValue("Diagnostics", "RecordVideo", RecordVideo);

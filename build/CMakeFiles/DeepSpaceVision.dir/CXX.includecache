@@ -314,6 +314,12 @@ spdlog/spdlog.h
 zmq.hpp
 -
 
+/home/aaron/FRC2019/DeepSpaceVision/DeepSpaceTargetModel.h
+opencv2/opencv.hpp
+-
+TargetModel.h
+/home/aaron/FRC2019/DeepSpaceVision/TargetModel.h
+
 /home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.cpp
 thread
 -
@@ -321,8 +327,8 @@ DeepSpaceVision.h
 /home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.h
 VisionData.hpp
 /home/aaron/FRC2019/DeepSpaceVision/VisionData.hpp
-TargetModel.h
-/home/aaron/FRC2019/DeepSpaceVision/TargetModel.h
+DeepSpaceTargetModel.h
+/home/aaron/FRC2019/DeepSpaceVision/DeepSpaceTargetModel.h
 CameraModel.h
 /home/aaron/FRC2019/DeepSpaceVision/CameraModel.h
 

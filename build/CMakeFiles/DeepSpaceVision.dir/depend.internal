@@ -12,6 +12,7 @@ CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o
  ..//json.hpp
  /home/aaron/FRC2019/DeepSpaceVision/CameraModel.h
  /home/aaron/FRC2019/DeepSpaceVision/DataSender.h
+ /home/aaron/FRC2019/DeepSpaceVision/DeepSpaceTargetModel.h
  /home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.cpp
  /home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.h
  /home/aaron/FRC2019/DeepSpaceVision/Setup.hpp
