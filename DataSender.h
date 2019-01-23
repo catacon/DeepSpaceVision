@@ -18,6 +18,8 @@ public:
 
     DataSender(std::shared_ptr<Setup>, std::shared_ptr<spdlog::logger>);
 
+    ~DataSender();
+
     bool Send(const VisionData&);
 
 private:

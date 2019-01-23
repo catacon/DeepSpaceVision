@@ -13,7 +13,13 @@ DataSender::DataSender(std::shared_ptr<Setup> setup, std::shared_ptr<spdlog::log
     , _socket(_context, ZMQ_PUB)
 {
     std::string s = std::string("tcp://*:" + std::to_string((int)setup->DataPort));
-    _socket.connect("tcp://127.0.0.1:5556");
+    _socket.bind("tcp://*:5556");
+}
+
+DataSender::~DataSender()
+{
+    _socket.close();
+    zmq_ctx_destroy(&_context);
 }
 
 bool DataSender::Send(const VisionData& d)

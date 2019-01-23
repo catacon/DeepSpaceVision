@@ -117,6 +117,7 @@ CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o
  /usr/local/include/opencv4/opencv2/videoio.hpp
 CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o
  /home/aaron/FRC2019/DeepSpaceVision/CameraModel.h
+ /home/aaron/FRC2019/DeepSpaceVision/Setup.hpp
  /home/aaron/FRC2019/DeepSpaceVision/TargetFinder.cpp
  /home/aaron/FRC2019/DeepSpaceVision/TargetFinder.h
  /home/aaron/FRC2019/DeepSpaceVision/TargetModel.h

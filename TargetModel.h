@@ -15,7 +15,7 @@ public:
 
     std::vector<cv::Point3d> GetTargetAxes() { return _targetAxes; }
 
-private:
+protected:
 
     // 3D position of target keypoints in millimeters relative to target origin
     std::vector<cv::Point3d> _keyPoints;

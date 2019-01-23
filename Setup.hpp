@@ -34,7 +34,7 @@ class Setup
             UseTestImage = _ini.GetBoolValue("Diagnostics", "UseTestImage", UseTestImage);
             TestImagePath = _ini.GetValue("Diagnostics", "TestImagePath");
             LogLevel = _ini.GetLongValue("Diagnostics", "LogLevel", LogLevel);
-            DisplayImages = _ini.GetBoolValue("Diagnostics", "DisplayImages", DisplayImages);
+            DebugImages = _ini.GetBoolValue("Diagnostics", "DebugImages", DebugImages);
             RecordVideo = _ini.GetBoolValue("Diagnostics", "RecordVideo", RecordVideo);
         }
 
@@ -64,7 +64,7 @@ class Setup
         long LogLevel = (long)spdlog::level::debug;
 
         // Display development images
-        bool DisplayImages = false;
+        bool DebugImages = false;
 
         // Record diagnostic video
         bool RecordVideo = false;

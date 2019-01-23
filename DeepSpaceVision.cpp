@@ -73,10 +73,6 @@ void DeepSpaceVision::Process()
 
             if (_targetFinder->Process(image, data))
             {
-
-                cv::imshow("test", image);
-                cv::waitKey(10);
-
                 if (_dataSender->Send(data))
                 {
 
@@ -89,6 +85,11 @@ void DeepSpaceVision::Process()
             else
             {
                 _logger->error("Failed to process image");   // TODO add error code
+            }
+
+            if (_setup->DebugImages)
+            {
+                _targetFinder->ShowDebugImages();
             }
         }
         else

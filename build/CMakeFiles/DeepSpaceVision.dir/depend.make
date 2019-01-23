@@ -116,6 +116,7 @@ CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: /usr/local/include/opencv4
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: /usr/local/include/opencv4/opencv2/videoio.hpp
 
 CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: ../CameraModel.h
+CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: ../Setup.hpp
 CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: ../TargetFinder.cpp
 CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: ../TargetFinder.h
 CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: ../TargetModel.h
