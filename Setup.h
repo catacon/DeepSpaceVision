@@ -27,11 +27,17 @@ namespace Setup
 
     namespace Diagnostics
     {
-        // Used saved image instead of camera
+        // Use saved image instead of camera
         extern bool UseTestImage;
 
         // Path to test image
         extern std::string TestImagePath;
+
+        // Use saved video instead of camera
+        extern bool UseTestVideo;
+
+        // Path to test video
+        extern std::string TestVideoPath;
 
         // Log Level
         extern spdlog::level::level_enum LogLevel;

@@ -21,6 +21,8 @@ namespace Setup
     {
         bool UseTestImage = false;
         std::string TestImagePath = "";
+        bool UseTestVideo = false;
+        std::string TestVideoPath = "";
         spdlog::level::level_enum LogLevel = spdlog::level::debug;
         bool DisplayDebugImages = false;
         bool RecordVideo = false;
@@ -65,7 +67,9 @@ namespace Setup
 
             // Diagnostics
             ini.SetBoolValue("Diagnostics", "UseTestImage", Diagnostics::UseTestImage);  
-            ini.SetValue("Diagnostics", "TestImagePath", Diagnostics::TestImagePath.c_str());          
+            ini.SetValue("Diagnostics", "TestImagePath", Diagnostics::TestImagePath.c_str());   
+            ini.SetBoolValue("Diagnostics", "UseTestVideo", Diagnostics::UseTestVideo);  
+            ini.SetValue("Diagnostics", "TestVideoPath", Diagnostics::TestVideoPath.c_str());        
             ini.SetLongValue("Diagnostics", "LogLevel", (int)Diagnostics::LogLevel);
             ini.SetBoolValue("Diagnostics", "DisplayDebugImages", Diagnostics::DisplayDebugImages);     
             ini.SetBoolValue("Diagnostics", "RecordVideo", Diagnostics::RecordVideo);       
@@ -115,6 +119,8 @@ namespace Setup
             // Diagnostics
             Diagnostics::UseTestImage = ini.GetBoolValue("Diagnostics", "UseTestImage", Diagnostics::UseTestImage);            
             Diagnostics::TestImagePath = ini.GetValue("Diagnostics", "TestImagePath", Diagnostics::TestImagePath.c_str());
+            Diagnostics::UseTestImage = ini.GetBoolValue("Diagnostics", "UseTestVideo", Diagnostics::UseTestVideo);            
+            Diagnostics::TestImagePath = ini.GetValue("Diagnostics", "TestVideoPath", Diagnostics::TestVideoPath.c_str());
             Diagnostics::LogLevel = (spdlog::level::level_enum)ini.GetLongValue("Diagnostics", "LogLevel", Diagnostics::LogLevel);
             Diagnostics::DisplayDebugImages = ini.GetBoolValue("Diagnostics", "DisplayDebugImages", Diagnostics::DisplayDebugImages);     
             Diagnostics::RecordVideo = ini.GetBoolValue("Diagnostics", "RecordVideo", Diagnostics::RecordVideo);       

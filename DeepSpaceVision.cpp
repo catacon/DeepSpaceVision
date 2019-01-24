@@ -47,7 +47,7 @@ void DeepSpaceVision::Process()
 {
     _isProcessorRunning = true;
 
-    while (_runProcessing)
+    while (_runProcessing && _targetCapture.isOpened())
     {
         // If desired, reread setup file to update values
         if (Setup::Diagnostics::ReadSetupFile)
@@ -66,14 +66,7 @@ void DeepSpaceVision::Process()
             _targetCapture->read(image);
         }
 
-        bool isImageOk = true;
-
-        if (image.empty() || image.rows <= 0 || image.cols <= 0)
-        {
-            isImageOk = false;
-        }
-
-        if (isImageOk)
+        if (!image.empty())
         {
             VisionData data;
 
