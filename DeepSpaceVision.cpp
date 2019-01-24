@@ -4,14 +4,15 @@
 #include "VisionData.hpp"
 #include "DeepSpaceTargetModel.h"
 #include "CameraModel.h"
+#include "Setup.h"
 
 using namespace Lightning;
 
 DeepSpaceVision::DeepSpaceVision(std::shared_ptr<spdlog::logger> logger)
     : _logger(logger)
-    , _targetCapture(std::make_unique<cv::VideoCapture>(setup->CameraId))
-    , _targetFinder(std::make_unique<TargetFinder>(setup, logger, DeepSpaceTargetModel(), CameraModel()))
-    , _dataSender(std::make_unique<DataSender>(setup, logger))
+    , _targetCapture(std::make_unique<cv::VideoCapture>(Setup::Camera::CameraId))
+    , _targetFinder(std::make_unique<TargetFinder>(logger, DeepSpaceTargetModel(), CameraModel()))
+    , _dataSender(std::make_unique<DataSender>(logger))
 {
     _runProcessing.store(false);
     _isProcessorRunning.store(false);

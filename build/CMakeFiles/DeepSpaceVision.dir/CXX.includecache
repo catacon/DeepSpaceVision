@@ -303,8 +303,8 @@ DataSender.h
 /home/aaron/FRC2019/DeepSpaceVision/DataSender.h
 VisionData.hpp
 /home/aaron/FRC2019/DeepSpaceVision/VisionData.hpp
-Setup.hpp
-/home/aaron/FRC2019/DeepSpaceVision/Setup.hpp
+Setup.h
+/home/aaron/FRC2019/DeepSpaceVision/Setup.h
 
 /home/aaron/FRC2019/DeepSpaceVision/DataSender.h
 memory
@@ -331,6 +331,8 @@ DeepSpaceTargetModel.h
 /home/aaron/FRC2019/DeepSpaceVision/DeepSpaceTargetModel.h
 CameraModel.h
 /home/aaron/FRC2019/DeepSpaceVision/CameraModel.h
+Setup.h
+/home/aaron/FRC2019/DeepSpaceVision/Setup.h
 
 /home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.h
 memory
@@ -339,18 +341,24 @@ opencv2/opencv.hpp
 -
 spdlog/spdlog.h
 /home/aaron/FRC2019/DeepSpaceVision/spdlog/spdlog.h
-Setup.hpp
-/home/aaron/FRC2019/DeepSpaceVision/Setup.hpp
+Setup.h
+/home/aaron/FRC2019/DeepSpaceVision/Setup.h
 TargetFinder.h
 /home/aaron/FRC2019/DeepSpaceVision/TargetFinder.h
 DataSender.h
 /home/aaron/FRC2019/DeepSpaceVision/DataSender.h
 
-/home/aaron/FRC2019/DeepSpaceVision/Setup.hpp
+/home/aaron/FRC2019/DeepSpaceVision/Setup.cpp
 simpleini/SimpleIni.h
 -
 spdlog/spdlog.h
 /home/aaron/FRC2019/DeepSpaceVision/spdlog/spdlog.h
+Setup.h
+/home/aaron/FRC2019/DeepSpaceVision/Setup.h
+
+/home/aaron/FRC2019/DeepSpaceVision/Setup.h
+string
+-
 
 /home/aaron/FRC2019/DeepSpaceVision/TargetFinder.cpp
 TargetFinder.h
@@ -359,8 +367,8 @@ CameraModel.h
 /home/aaron/FRC2019/DeepSpaceVision/CameraModel.h
 TargetModel.h
 /home/aaron/FRC2019/DeepSpaceVision/TargetModel.h
-Setup.hpp
-/home/aaron/FRC2019/DeepSpaceVision/Setup.hpp
+Setup.h
+/home/aaron/FRC2019/DeepSpaceVision/Setup.h
 
 /home/aaron/FRC2019/DeepSpaceVision/TargetFinder.h
 memory
@@ -399,6 +407,8 @@ spdlog/spdlog.h
 /home/aaron/FRC2019/DeepSpaceVision/spdlog/spdlog.h
 DeepSpaceVision.h
 /home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.h
+Setup.h
+/home/aaron/FRC2019/DeepSpaceVision/Setup.h
 
 /usr/local/include/opencv4/opencv2/calib3d.hpp
 opencv2/core.hpp

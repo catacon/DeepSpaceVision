@@ -199,6 +199,33 @@ DeepSpaceVision.cpp.s:
 	$(MAKE) -f CMakeFiles/DeepSpaceVision.dir/build.make CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.s
 .PHONY : DeepSpaceVision.cpp.s
 
+Setup.o: Setup.cpp.o
+
+.PHONY : Setup.o
+
+# target to build an object file
+Setup.cpp.o:
+	$(MAKE) -f CMakeFiles/DeepSpaceVision.dir/build.make CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o
+.PHONY : Setup.cpp.o
+
+Setup.i: Setup.cpp.i
+
+.PHONY : Setup.i
+
+# target to preprocess a source file
+Setup.cpp.i:
+	$(MAKE) -f CMakeFiles/DeepSpaceVision.dir/build.make CMakeFiles/DeepSpaceVision.dir/Setup.cpp.i
+.PHONY : Setup.cpp.i
+
+Setup.s: Setup.cpp.s
+
+.PHONY : Setup.s
+
+# target to generate assembly for a file
+Setup.cpp.s:
+	$(MAKE) -f CMakeFiles/DeepSpaceVision.dir/build.make CMakeFiles/DeepSpaceVision.dir/Setup.cpp.s
+.PHONY : Setup.cpp.s
+
 TargetFinder.o: TargetFinder.cpp.o
 
 .PHONY : TargetFinder.o
@@ -270,6 +297,9 @@ help:
 	@echo "... DeepSpaceVision.o"
 	@echo "... DeepSpaceVision.i"
 	@echo "... DeepSpaceVision.s"
+	@echo "... Setup.o"
+	@echo "... Setup.i"
+	@echo "... Setup.s"
 	@echo "... TargetFinder.o"
 	@echo "... TargetFinder.i"
 	@echo "... TargetFinder.s"

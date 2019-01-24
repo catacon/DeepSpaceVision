@@ -5,7 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include "spdlog/spdlog.h"
 
-#include "Setup.hpp"
+#include "Setup.h"
 #include "TargetFinder.h"
 #include "DataSender.h"
 

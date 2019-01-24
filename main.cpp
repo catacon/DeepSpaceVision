@@ -5,6 +5,7 @@
 #include "spdlog/spdlog.h"
 
 #include "DeepSpaceVision.h"
+#include "Setup.h"
 
 // Sigint Handler
 std::atomic<bool> run(true);
@@ -27,16 +28,16 @@ int main(int, char**) {
     signal(SIGINT, sigint_handler);
 
     // Setup
-    Setup::LoadSetup();
+    Lightning::Setup::LoadSetup();
 
     // Logger
     logger = std::make_shared<spdlog::logger>("DeepSpaceVision", sinks.begin(), sinks.end());
-    logger->set_level(Setup::Diagnostics::LogLevel);
+    logger->set_level(Lightning::Setup::Diagnostics::LogLevel);
 
     logger->debug("Starting DeepSpaceVision");
 
     // Vision Processor
-    _visionProcessor = std::make_unique<Lightning::DeepSpaceVision>(setup, logger);
+    _visionProcessor = std::make_unique<Lightning::DeepSpaceVision>(logger);
 
     if (!_visionProcessor->StartProcessing())
     {

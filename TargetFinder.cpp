@@ -1,7 +1,7 @@
 #include "TargetFinder.h"
 #include "CameraModel.h"
 #include "TargetModel.h"
-#include "Setup.hpp"
+#include "Setup.h"
 
 using namespace Lightning;
 
@@ -66,7 +66,7 @@ bool TargetFinder::FindContours(const cv::Mat& image, std::vector<std::vector<cv
 void TargetFinder::ApproximateContours(const std::vector<std::vector<cv::Point>>& contours, std::vector<std::vector<cv::Point>>& approximation, cv::Mat& image)
 {
 
-    if (_setup->DebugImages)
+    if (Setup::Diagnostics::DisplayDebugImages)
     {
         image = cv::Mat::zeros(image.size(), CV_8UC1);
     }
@@ -78,7 +78,7 @@ void TargetFinder::ApproximateContours(const std::vector<std::vector<cv::Point>>
     {
         cv::approxPolyDP(contours[i], approximation[i], Setup::Processing::ContourApproximationAccuracy, true);
 
-        if (_setup->DebugImages)
+        if (Setup::Diagnostics::DisplayDebugImages)
         {
             cv::drawContours(image, approximation, i, cv::Scalar(255), cv::FILLED, cv::LINE_AA);
         }
@@ -88,7 +88,7 @@ void TargetFinder::ApproximateContours(const std::vector<std::vector<cv::Point>>
 
 bool TargetFinder::Process(cv::Mat& image, VisionData& data)
 {
-    using namespace Setup::Processing::HSVFilter;
+    using namespace Setup::HSVFilter;
 
     // Convert image to HSV and gray
     cv::Mat hsvImage, grayImage;
@@ -126,12 +126,12 @@ bool TargetFinder::Process(cv::Mat& image, VisionData& data)
 
     FindTargetTransforms(targets, _targetModel, _cameraModel);
 
-    for (int i = 0; i < targets.size(); ++i)
-    {
-        _logger->debug("Target {0} Distance: {1}, Yaw: {2}", i, targets[i].distance, targets[i].yaw);
-    }
+    // for (int i = 0; i < targets.size(); ++i)
+    // {
+    //     _logger->debug("Target {0} Distance: {1}, Yaw: {2}", i, targets[i].distance, targets[i].yaw);
+    // }
 
-    if (_setup->DebugImages)
+    if (Setup::Diagnostics::DisplayDebugImages)
     {
         cv::RNG rng(12345);
         for (auto& target : targets)
@@ -210,7 +210,7 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
 
             if (numLabels == 4) // TODO define number of corners?
             {
-                std::vector<cv::Point2d> combinedPoints(numLabels);
+                std::vector<cv::Point2f> combinedPoints(numLabels);
 
                 cv::Point2d center(0, 0);
 
@@ -263,10 +263,11 @@ void TargetFinder::SortTargetSections(const std::vector<TargetSection>& sections
     {
         for (int j = i + 1; j < (int)sections.size(); ++j)
         {
-            double angleDiff = (sections[i].angle - sections[j].angle);
+            // TODO this needs work
+            double angleDiff = std::abs(sections[i].angle - sections[j].angle);
             double centerDiff = Distance(sections[i].center, sections[j].center);
 
-            if (angleDiff > Setup::Processing::MinAngleDiff && angleDiff < Setup::Processing::MxnAngleDiff && centerDiff < Setup::Processing::MaxTargetSeparation)
+            if (angleDiff > Setup::Processing::MinAngleDiff && angleDiff < Setup::Processing::MaxAngleDiff && centerDiff < Setup::Processing::MaxTargetSeparation)
             {
                 Target newTarget;
 
@@ -294,8 +295,20 @@ void TargetFinder::RefineTargetCorners(std::vector<Target>& targets, const cv::M
         // Get sub pixels for each corner
         for (auto& section : target.sections)
         {
-            cv::cornerSubPix(image, section.corners, cv::Size(5,5), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::MAX_ITER | cv::TermCriteria::EPS, Setup::Processing::MaxCornerSubPixelIterations, Setup::Processing::CornerSubPixelThreshold));
+            if (section.corners.size() <= 0)
+            {
+                continue;
+            }
 
+            try
+            {
+                cv::cornerSubPix(image, section.corners, cv::Size(5,5), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::MAX_ITER | cv::TermCriteria::EPS, Setup::Processing::MaxCornerSubPixelIterations, Setup::Processing::CornerSubPixelThreshold));
+            }
+            catch (cv::Exception ex)
+            {
+                _logger->error("RefineTargetCorners() caught exception: {0}", ex.what());
+                continue;
+            }
             target.center.x += section.center.x;
             target.center.y += section.center.y;
 
@@ -352,8 +365,8 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         // Get Euler angles from rotation maxtrix
         cv::Vec3d euler = EulerAnglesFromRotationMaxtrix(Rc);
 
-        _logger->debug("Translation: {0:3.3f}, { 1:3.3f}, {2:3.3f}", tvec.x, tvec.y, tvec.z);
-        _logger->debug("Euler Angles: {0:3.3f}, { 1:3.3f}, {2:3.3f}", euler.x, euler.y, euler.z);
+        _logger->debug("Translation: {0}, {1}, {2}", tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0));
+        _logger->debug("Euler Angles: {0}, {1}, {2}", euler[0], euler[1], euler[2]);
 
         // TODO Translate from camera to robot
 
@@ -361,7 +374,7 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         // Should all calculations be done in target/world coordinate?
 
         // Project target axis points onto image using the transformation
-        if (_setup->DebugImages)
+        if (Setup::Diagnostics::DisplayDebugImages)
         {
             auto targetAxes = targetModel.GetTargetAxes();
             std::vector<cv::Point2d> imageAxesPoints;
@@ -410,6 +423,6 @@ cv::Vec3d TargetFinder::EulerAnglesFromRotationMaxtrix(const cv::Mat& R)
         y = atan2(-R.at<double>(2,0), sy);
         z = 0;
     }
-    return Vec3d(x, y, z);
+    return cv::Vec3d(x, y, z);
   
 }

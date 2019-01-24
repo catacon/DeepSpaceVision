@@ -81,9 +81,33 @@ CMakeFiles/DeepSpaceVision.dir/main.cpp.o.provides: CMakeFiles/DeepSpaceVision.d
 CMakeFiles/DeepSpaceVision.dir/main.cpp.o.provides.build: CMakeFiles/DeepSpaceVision.dir/main.cpp.o
 
 
+CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o: CMakeFiles/DeepSpaceVision.dir/flags.make
+CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o: ../Setup.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o"
+	/usr/bin/g++-7  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o -c /home/aaron/FRC2019/DeepSpaceVision/Setup.cpp
+
+CMakeFiles/DeepSpaceVision.dir/Setup.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/DeepSpaceVision.dir/Setup.cpp.i"
+	/usr/bin/g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/aaron/FRC2019/DeepSpaceVision/Setup.cpp > CMakeFiles/DeepSpaceVision.dir/Setup.cpp.i
+
+CMakeFiles/DeepSpaceVision.dir/Setup.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/DeepSpaceVision.dir/Setup.cpp.s"
+	/usr/bin/g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/aaron/FRC2019/DeepSpaceVision/Setup.cpp -o CMakeFiles/DeepSpaceVision.dir/Setup.cpp.s
+
+CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o.requires:
+
+.PHONY : CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o.requires
+
+CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o.provides: CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o.requires
+	$(MAKE) -f CMakeFiles/DeepSpaceVision.dir/build.make CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o.provides.build
+.PHONY : CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o.provides
+
+CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o.provides.build: CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o
+
+
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: CMakeFiles/DeepSpaceVision.dir/flags.make
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../DeepSpaceVision.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o"
 	/usr/bin/g++-7  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o -c /home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.cpp
 
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.i: cmake_force
@@ -107,7 +131,7 @@ CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o.provides.build: CMakeFiles/
 
 CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: CMakeFiles/DeepSpaceVision.dir/flags.make
 CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: ../TargetFinder.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o"
 	/usr/bin/g++-7  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o -c /home/aaron/FRC2019/DeepSpaceVision/TargetFinder.cpp
 
 CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.i: cmake_force
@@ -131,7 +155,7 @@ CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o.provides.build: CMakeFiles/Dee
 
 CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o: CMakeFiles/DeepSpaceVision.dir/flags.make
 CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o: ../DataSender.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o"
 	/usr/bin/g++-7  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o -c /home/aaron/FRC2019/DeepSpaceVision/DataSender.cpp
 
 CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.i: cmake_force
@@ -156,6 +180,7 @@ CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o.provides.build: CMakeFiles/DeepS
 # Object files for target DeepSpaceVision
 DeepSpaceVision_OBJECTS = \
 "CMakeFiles/DeepSpaceVision.dir/main.cpp.o" \
+"CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o" \
 "CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o" \
 "CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o" \
 "CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o"
@@ -164,6 +189,7 @@ DeepSpaceVision_OBJECTS = \
 DeepSpaceVision_EXTERNAL_OBJECTS =
 
 DeepSpaceVision: CMakeFiles/DeepSpaceVision.dir/main.cpp.o
+DeepSpaceVision: CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o
 DeepSpaceVision: CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o
 DeepSpaceVision: CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o
 DeepSpaceVision: CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o
@@ -184,7 +210,7 @@ DeepSpaceVision: /usr/local/lib/libopencv_imgcodecs.so.4.0.1
 DeepSpaceVision: /usr/local/lib/libopencv_imgproc.so.4.0.1
 DeepSpaceVision: /usr/local/lib/libopencv_core.so.4.0.1
 DeepSpaceVision: CMakeFiles/DeepSpaceVision.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable DeepSpaceVision"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable DeepSpaceVision"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/DeepSpaceVision.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -193,6 +219,7 @@ CMakeFiles/DeepSpaceVision.dir/build: DeepSpaceVision
 .PHONY : CMakeFiles/DeepSpaceVision.dir/build
 
 CMakeFiles/DeepSpaceVision.dir/requires: CMakeFiles/DeepSpaceVision.dir/main.cpp.o.requires
+CMakeFiles/DeepSpaceVision.dir/requires: CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o.requires
 CMakeFiles/DeepSpaceVision.dir/requires: CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o.requires
 CMakeFiles/DeepSpaceVision.dir/requires: CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o.requires
 CMakeFiles/DeepSpaceVision.dir/requires: CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o.requires

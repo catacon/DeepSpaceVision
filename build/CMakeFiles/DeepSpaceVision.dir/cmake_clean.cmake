@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/DeepSpaceVision.dir/main.cpp.o"
+  "CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o"
   "CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o"
   "CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o"
   "CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o"

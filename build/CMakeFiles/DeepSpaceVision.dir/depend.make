@@ -4,7 +4,7 @@
 CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o: ../json.hpp
 CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o: ../DataSender.cpp
 CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o: ../DataSender.h
-CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o: ../Setup.hpp
+CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o: ../Setup.h
 CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o: ../VisionData.hpp
 CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o: ../VisionStatus.hpp
 
@@ -14,7 +14,7 @@ CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../DataSender.h
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../DeepSpaceTargetModel.h
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../DeepSpaceVision.cpp
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../DeepSpaceVision.h
-CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../Setup.hpp
+CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../Setup.h
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../TargetFinder.h
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../TargetModel.h
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: ../VisionData.hpp
@@ -116,8 +116,11 @@ CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: /usr/local/include/opencv4
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: /usr/local/include/opencv4/opencv2/video/tracking.hpp
 CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o: /usr/local/include/opencv4/opencv2/videoio.hpp
 
+CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o: ../Setup.cpp
+CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o: ../Setup.h
+
 CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: ../CameraModel.h
-CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: ../Setup.hpp
+CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: ../Setup.h
 CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: ../TargetFinder.cpp
 CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: ../TargetFinder.h
 CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: ../TargetModel.h
@@ -221,7 +224,7 @@ CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o: /usr/local/include/opencv4/op
 CMakeFiles/DeepSpaceVision.dir/main.cpp.o: ../CameraModel.h
 CMakeFiles/DeepSpaceVision.dir/main.cpp.o: ../DataSender.h
 CMakeFiles/DeepSpaceVision.dir/main.cpp.o: ../DeepSpaceVision.h
-CMakeFiles/DeepSpaceVision.dir/main.cpp.o: ../Setup.hpp
+CMakeFiles/DeepSpaceVision.dir/main.cpp.o: ../Setup.h
 CMakeFiles/DeepSpaceVision.dir/main.cpp.o: ../TargetFinder.h
 CMakeFiles/DeepSpaceVision.dir/main.cpp.o: ../TargetModel.h
 CMakeFiles/DeepSpaceVision.dir/main.cpp.o: ../main.cpp

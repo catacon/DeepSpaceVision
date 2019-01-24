@@ -6,6 +6,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/aaron/FRC2019/DeepSpaceVision/DataSender.cpp" "/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles/DeepSpaceVision.dir/DataSender.cpp.o"
   "/home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.cpp" "/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles/DeepSpaceVision.dir/DeepSpaceVision.cpp.o"
+  "/home/aaron/FRC2019/DeepSpaceVision/Setup.cpp" "/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o"
   "/home/aaron/FRC2019/DeepSpaceVision/TargetFinder.cpp" "/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o"
   "/home/aaron/FRC2019/DeepSpaceVision/main.cpp" "/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles/DeepSpaceVision.dir/main.cpp.o"
   )

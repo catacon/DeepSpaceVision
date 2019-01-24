@@ -11,7 +11,6 @@
 namespace Lightning
 {
 
-class Setup;
 class VisionData;
 
 // TODO move to other file

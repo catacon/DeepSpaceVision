@@ -64,10 +64,9 @@ namespace Setup
             ini.SetLongValue("Network", "DataPort", Network::DataPort);
 
             // Diagnostics
-            ini.SetBoolValue("Diagnostics", "UseTestImage", Diagnostics::UseTestImage);            
-            ini.SetValue("Diagnostics", "TestImagePath", spdlog::level::to_str(LogLevel), 
-            		"# Valid log levels (in order of decreasing verbosity):\n"
-		            "# trace, error, debug, info, warning, error, critical, off");
+            ini.SetBoolValue("Diagnostics", "UseTestImage", Diagnostics::UseTestImage);  
+            ini.SetValue("Diagnostics", "TestImagePath", Diagnostics::TestImagePath.c_str());          
+            ini.SetLongValue("Diagnostics", "LogLevel", (int)Diagnostics::LogLevel);
             ini.SetBoolValue("Diagnostics", "DisplayDebugImages", Diagnostics::DisplayDebugImages);     
             ini.SetBoolValue("Diagnostics", "RecordVideo", Diagnostics::RecordVideo);       
             ini.SetBoolValue("Diagnostics", "ReadSetupFile", Diagnostics::ReadSetupFile);      
@@ -75,7 +74,7 @@ namespace Setup
             // Processing
             ini.SetLongValue("Processing", "ContourSizeThreshold", Processing::ContourSizeThreshold);
             ini.SetDoubleValue("Processing", "ContourApproximationAccuracy", Processing::ContourApproximationAccuracy);
-            ini.SetDoublealue("Processing", "ShapeFactorMin", Processing::ShapeFactorMin);
+            ini.SetDoubleValue("Processing", "ShapeFactorMin", Processing::ShapeFactorMin);
             ini.SetDoubleValue("Processing", "ShapeFactorMax", Processing::ShapeFactorMax);
             ini.SetLongValue("Processing", "FastThreshold", Processing::FastThreshold);
             ini.SetLongValue("Processing", "CornerDistanceThreshold", Processing::CornerDistanceThreshold);
@@ -105,7 +104,7 @@ namespace Setup
 
         SI_Error result = ini.LoadFile(SetupPath.c_str());
 
-        if (result = SI_Error::SI_OK)
+        if (result == SI_Error::SI_OK)
         {
             // Camera
             Camera::CameraId = ini.GetLongValue("Camera", "CameraId", Camera::CameraId);
@@ -115,7 +114,8 @@ namespace Setup
 
             // Diagnostics
             Diagnostics::UseTestImage = ini.GetBoolValue("Diagnostics", "UseTestImage", Diagnostics::UseTestImage);            
-            Diagnostics::TestImagePath = spdlog::level::from_str(ini.GetValue("Diagnostics", "TestImagePath", spdlog::level::to_str(LogLevel), LogLevel));
+            Diagnostics::TestImagePath = ini.GetValue("Diagnostics", "TestImagePath", Diagnostics::TestImagePath.c_str());
+            Diagnostics::LogLevel = (spdlog::level::level_enum)ini.GetLongValue("Diagnostics", "LogLevel", Diagnostics::LogLevel);
             Diagnostics::DisplayDebugImages = ini.GetBoolValue("Diagnostics", "DisplayDebugImages", Diagnostics::DisplayDebugImages);     
             Diagnostics::RecordVideo = ini.GetBoolValue("Diagnostics", "RecordVideo", Diagnostics::RecordVideo);       
             Diagnostics::ReadSetupFile = ini.GetBoolValue("Diagnostics", "ReadSetupFile", Diagnostics::ReadSetupFile);      
@@ -123,7 +123,7 @@ namespace Setup
             // Processing
             Processing::ContourSizeThreshold = ini.GetLongValue("Processing", "ContourSizeThreshold", Processing::ContourSizeThreshold);
             Processing::ContourApproximationAccuracy = ini.GetDoubleValue("Processing", "ContourApproximationAccuracy", Processing::ContourApproximationAccuracy);
-            Processing::ShapeFactorMin = ini.GetDoublealue("Processing", "ShapeFactorMin", Processing::ShapeFactorMin);
+            Processing::ShapeFactorMin = ini.GetDoubleValue("Processing", "ShapeFactorMin", Processing::ShapeFactorMin);
             Processing::ShapeFactorMax = ini.GetDoubleValue("Processing", "ShapeFactorMax", Processing::ShapeFactorMax);
             Processing::FastThreshold = ini.GetLongValue("Processing", "FastThreshold", Processing::FastThreshold);
             Processing::CornerDistanceThreshold = ini.GetLongValue("Processing", "CornerDistanceThreshold", Processing::CornerDistanceThreshold);
