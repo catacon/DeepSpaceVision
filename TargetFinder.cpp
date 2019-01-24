@@ -124,7 +124,8 @@ bool TargetFinder::Process(cv::Mat& image, VisionData& data)
 
     RefineTargetCorners(targets, grayImage);
 
-    FindTargetTransforms(targets, _targetModel, _cameraModel);
+    std::vector<cv::Point2d> projectedPoints;
+    FindTargetTransforms(targets, _targetModel, _cameraModel, projectedPoints);
 
     // for (int i = 0; i < targets.size(); ++i)
     // {
@@ -138,15 +139,25 @@ bool TargetFinder::Process(cv::Mat& image, VisionData& data)
         {
             cv::Scalar color = cv::Scalar(rng.uniform(0,255), rng.uniform(0, 255), rng.uniform(0, 255));
 
-                cv::circle(image, target.sections[0].corners[0], 5, cv::Scalar(255,0,0), 1, cv::LINE_AA);
-                cv::circle(image, target.sections[1].corners[0], 5, cv::Scalar(0,255,0), 1, cv::LINE_AA);
-                cv::circle(image, target.sections[0].corners[1], 5, cv::Scalar(0,0,255), 1, cv::LINE_AA);
-                cv::circle(image, target.sections[1].corners[1], 5, cv::Scalar(255,255,0), 1, cv::LINE_AA);
-                cv::circle(image, target.sections[0].corners[2], 5, cv::Scalar(255,0,255), 1, cv::LINE_AA);
-                cv::circle(image, target.sections[1].corners[2], 5, cv::Scalar(0,255,255), 1, cv::LINE_AA);
-                cv::circle(image, target.sections[0].corners[3], 5, cv::Scalar(255,255,255), 1, cv::LINE_AA);
-                cv::circle(image, target.sections[1].corners[3], 5, cv::Scalar(127,127,127), 1, cv::LINE_AA);
+            /*
+            cv::circle(image, target.sections[0].corners[0], 5, cv::Scalar(255,0,0), 1, cv::LINE_AA);
+            cv::circle(image, target.sections[1].corners[0], 5, cv::Scalar(255,0,0), 1, cv::LINE_AA);
+            cv::circle(image, target.sections[0].corners[1], 5, cv::Scalar(0,255,0), 1, cv::LINE_AA);
+            cv::circle(image, target.sections[1].corners[1], 5, cv::Scalar(0,255,0), 1, cv::LINE_AA);
+            cv::circle(image, target.sections[0].corners[2], 5, cv::Scalar(0,0,255), 1, cv::LINE_AA);
+            cv::circle(image, target.sections[1].corners[2], 5, cv::Scalar(0,0,255), 1, cv::LINE_AA);
+            cv::circle(image, target.sections[0].corners[3], 5, cv::Scalar(255,255,255), 1, cv::LINE_AA);
+            cv::circle(image, target.sections[1].corners[3], 5, cv::Scalar(255,255,255), 1, cv::LINE_AA);
+            */
+            
+            for (auto& pt : projectedPoints)
+            {
+                cv::circle(image, pt, 5, cv::Scalar(255,0,0), 1, cv::LINE_AA);
+            }            
 
+            //cv::line(image, projectedPoints[0], projectedPoints[1], cv::Scalar(255,0,0), 1, cv::LINE_AA);
+            //cv::line(image, projectedPoints[0], projectedPoints[2], cv::Scalar(0,255,0), 1, cv::LINE_AA);
+            //cv::line(image, projectedPoints[0], projectedPoints[3], cv::Scalar(0,0,255), 1, cv::LINE_AA);
             
 
             cv::circle(image, target.center, 5, color, cv::FILLED, cv::LINE_AA);
@@ -320,7 +331,7 @@ void TargetFinder::RefineTargetCorners(std::vector<Target>& targets, const cv::M
     }
 }
 
-void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const TargetModel& targetModel, const CameraModel& cameraModel)
+void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const TargetModel& targetModel, const CameraModel& cameraModel, std::vector<cv::Point2d>& projectedPoints)
 {
     // Get model key points
     auto keyPoints = targetModel.GetKeyPoints();
@@ -350,7 +361,8 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         }
 
         // Find transform
-        bool solved = cv::solvePnP(keyPoints, imagePoints, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), rvec, tvec, false, cv::SOLVEPNP_ITERATIVE);
+        bool solved = cv::solvePnP(keyPoints, imagePoints, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), rvec, tvec, false, cv::SOLVEPNP_EPNP);
+        //bool solved = cv::solvePnPRansac(keyPoints, imagePoints, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), rvec, tvec, false);
 
         if (!solved)
         {
@@ -365,6 +377,10 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         // Get Euler angles from rotation maxtrix
         cv::Vec3d euler = EulerAnglesFromRotationMaxtrix(Rc);
 
+        euler[0] *= (180/CV_PI);
+        euler[1] *= (180/CV_PI);
+        euler[2] *= (180/CV_PI);
+
         _logger->debug("Translation: {0}, {1}, {2}", tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0));
         _logger->debug("Euler Angles: {0}, {1}, {2}", euler[0], euler[1], euler[2]);
 
@@ -377,9 +393,8 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         if (Setup::Diagnostics::DisplayDebugImages)
         {
             auto targetAxes = targetModel.GetTargetAxes();
-            std::vector<cv::Point2d> imageAxesPoints;
+            cv::projectPoints(targetAxes, rvec, tvec, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), projectedPoints);
 
-            cv::projectPoints(targetAxes, rvec, tvec, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), imageAxesPoints);
         }
 
 
@@ -411,7 +426,7 @@ cv::Vec3d TargetFinder::EulerAnglesFromRotationMaxtrix(const cv::Mat& R)
     double sy = sqrt(R.at<double>(0,0) * R.at<double>(0,0) +  R.at<double>(1,0) * R.at<double>(1,0) );
  
     double x, y, z;
-    if (sy < 1e-6)  // Is the matrix singular
+    if (sy > 1e-6)  // Is the matrix singular
     {
         x = atan2(R.at<double>(2,1) , R.at<double>(2,2));
         y = atan2(-R.at<double>(2,0), sy);

@@ -64,7 +64,7 @@ private:
 
     void RefineTargetCorners(std::vector<Target>&, const cv::Mat&);
 
-    void FindTargetTransforms(std::vector<Target>&, const TargetModel&, const CameraModel&);
+    void FindTargetTransforms(std::vector<Target>&, const TargetModel&, const CameraModel&, std::vector<cv::Point2d>&);
 
     double Distance(const cv::Point2d&, const cv::Point2d&);
 

@@ -16,21 +16,21 @@ public:
         _distanceCoefficients = cv::Mat(5, 1, CV_64FC1);
 
         // TODO get from camera calibration
-        _cameraMatrix.at<double>(0,0) = 544.4283532337362;
+        _cameraMatrix.at<double>(0,0) = 4.3437671163346170e+02;
         _cameraMatrix.at<double>(0,1) = 0;
-        _cameraMatrix.at<double>(0,2) = 316.1598132539191;
+        _cameraMatrix.at<double>(0,2) = 3.8936743695763329e+02;
         _cameraMatrix.at<double>(1,0) = 0;
-        _cameraMatrix.at<double>(1,1) = 546.3692871964042;
-        _cameraMatrix.at<double>(1,2) = 236.8928602692628;
+        _cameraMatrix.at<double>(1,1) = 4.2758461537279669e+02;
+        _cameraMatrix.at<double>(1,2) = 2.5252602377767519e+02;
         _cameraMatrix.at<double>(2,0) = 0;
         _cameraMatrix.at<double>(2,1) = 0;
         _cameraMatrix.at<double>(2,2) = 1;
 
-        _distanceCoefficients.at<double>(0,0) = -0.1490001736257689;
-        _distanceCoefficients.at<double>(1,0) = 0.5220732935095163;
-        _distanceCoefficients.at<double>(2,0) = 0.00142439391154711;
-        _distanceCoefficients.at<double>(3,0) = -0.002128107879961602;
-        _distanceCoefficients.at<double>(4,0) = -0.8172294974012634;
+        _distanceCoefficients.at<double>(0,0) = -1.6166081617619424e-01;
+        _distanceCoefficients.at<double>(1,0) = 6.6144114895915318e-02;
+        _distanceCoefficients.at<double>(2,0) = -9.9544467794404016e-04;
+        _distanceCoefficients.at<double>(3,0) = 1.5263799584402009e-02;
+        _distanceCoefficients.at<double>(4,0) = 0;
     }
 
     cv::Mat GetCameraMatrix() const { return _cameraMatrix; }
