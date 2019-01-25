@@ -17,6 +17,12 @@ namespace Setup
     {
         // Default camera id
         extern int CameraId;
+
+        // Image width
+        extern int Width;
+
+        // Image height
+        extern int Height;
     }
 
     namespace Network
@@ -86,6 +92,9 @@ namespace Setup
 
         // Threshold for corner subpixel calculation
         extern double CornerSubPixelThreshold;
+
+        // Switch for world coordinates or camera coordinates in final answer
+        extern bool UseWorldCoordinates;
     }
     
     namespace HSVFilter

@@ -22,7 +22,7 @@ class TargetSection
 {
 public:
     std::vector<cv::Point2f> corners;
-    double angle;
+    cv::RotatedRect rect;
     double score; 
     cv::Point2f center;
 };
@@ -31,10 +31,12 @@ class Target
 {
 public:
     std::vector<TargetSection> sections;
-
     cv::Point2f center;
-
     VisionData data;
+    cv::Mat rvec;
+    cv::Mat tvec;
+
+    void GetInverseTransforms(cv::Mat&, cv::Mat&);
 };
 
 class TargetFinder
@@ -46,7 +48,7 @@ public:
 
     bool Process(cv::Mat&, std::vector<VisionData>&);
 
-    void ShowDebugImages();
+    int ShowDebugImages();
 
 private:
 
@@ -64,11 +66,13 @@ private:
 
     void RefineTargetCorners(std::vector<Target>&, const cv::Mat&);
 
-    void FindTargetTransforms(std::vector<Target>&, const TargetModel&, const CameraModel&, std::vector<cv::Point2d>&);
+    void FindTargetTransforms(std::vector<Target>&, const TargetModel&, const CameraModel&, const cv::Size);
 
     double Distance(const cv::Point2d&, const cv::Point2d&);
 
     cv::Vec3d EulerAnglesFromRotationMaxtrix(const cv::Mat&);
+
+    void DrawDebugImage(cv::Mat&, const std::vector<Target>&);
 
     std::shared_ptr<spdlog::logger> _logger;
 

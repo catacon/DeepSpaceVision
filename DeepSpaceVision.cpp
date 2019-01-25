@@ -16,6 +16,11 @@ DeepSpaceVision::DeepSpaceVision(std::shared_ptr<spdlog::logger> logger)
 {
     _runProcessing.store(false);
     _isProcessorRunning.store(false);
+
+    if (Setup::Diagnostics::RecordVideo)
+    {
+        InitializeVideoWriters();
+    }
 }
 
 bool DeepSpaceVision::StartProcessing()
@@ -46,8 +51,9 @@ bool DeepSpaceVision::StopProcessing()
 void DeepSpaceVision::Process()
 {
     _isProcessorRunning = true;
+    bool escapeKeyPressed = false;
 
-    while (_runProcessing && _targetCapture->isOpened())
+    while (_runProcessing && _targetCapture->isOpened() && !escapeKeyPressed)
     {
         // If desired, reread setup file to update values
         if (Setup::Diagnostics::ReadSetupFile)
@@ -64,6 +70,16 @@ void DeepSpaceVision::Process()
         else
         {
             _targetCapture->read(image);
+
+            if (Setup::Diagnostics::RecordVideo && !Setup::Diagnostics::UseTestVideo)
+            {
+                if (!_rawVideoWriter)
+                {
+                    InitializeVideoWriters();
+                }
+
+                _rawVideoWriter->write(image);
+            }
         }
 
         if (!image.empty())
@@ -88,7 +104,23 @@ void DeepSpaceVision::Process()
 
             if (Setup::Diagnostics::DisplayDebugImages)
             {
-                _targetFinder->ShowDebugImages();
+                auto key = _targetFinder->ShowDebugImages();
+
+                // Quit if the escape key was pressed on an image - makes exiting the program a bit easier while debugging
+                if (key == 27)
+                {
+                    escapeKeyPressed = true;
+                }
+            }
+
+            if (Setup::Diagnostics::RecordVideo && !Setup::Diagnostics::UseTestImage)
+            {
+                if (!_processedVideoWriter)
+                {
+                    InitializeVideoWriters();
+                }
+
+                _processedVideoWriter->write(image);
             }
         }
         else
@@ -98,4 +130,12 @@ void DeepSpaceVision::Process()
     }
 
     _isProcessorRunning = false;
+}
+
+void DeepSpaceVision::InitializeVideoWriters()
+{
+    std::string rawFileName;
+    std::string processedFileName;
+    _rawVideoWriter = std::make_unique<cv::VideoWriter>(rawFileName, cv::VideoWriter::fourcc('M','J','P','G'), 30, cv::Size(Setup::Camera::Width, Setup::Camera::Height));
+    _processedVideoWriter = std::make_unique<cv::VideoWriter>(rawFileName, cv::VideoWriter::fourcc('M','J','P','G'), 30, cv::Size(Setup::Camera::Width, Setup::Camera::Height));
 }

@@ -10,6 +10,8 @@ namespace Setup
     namespace Camera
     {
         int CameraId = 1;
+        int Width = 640;
+        int Height = 480;
     }
 
     namespace Network
@@ -42,6 +44,7 @@ namespace Setup
         double MaxTargetSeparation = 160;
         int MaxCornerSubPixelIterations = 100;
         double CornerSubPixelThreshold = 0.1;
+        bool UseWorldCoordinates = false;
     }
 
     namespace HSVFilter
@@ -61,6 +64,8 @@ namespace Setup
 
             // Camera
             ini.SetLongValue("Camera", "CameraId", Camera::CameraId);
+            ini.SetLongValue("Camera", "Width", Camera::Width);
+            ini.SetLongValue("Camera", "Height", Camera::Height);
 
             // Network
             ini.SetLongValue("Network", "DataPort", Network::DataPort);
@@ -87,6 +92,7 @@ namespace Setup
             ini.SetDoubleValue("Processing", "MaxTargetSeparation", Processing::MaxTargetSeparation);
             ini.SetLongValue("Processing", "MaxCornerSubPixelIterations", Processing::MaxCornerSubPixelIterations);
             ini.SetDoubleValue("Processing", "CornerSubPixelThreshold", Processing::CornerSubPixelThreshold);
+            ini.SetBoolValue("Processing", "UseWorldCoordinates", Processing::UseWorldCoordinates);  
 
             // HSVFilter
             ini.SetLongValue("HSVFilter", "LowH", HSVFilter::LowH);
@@ -112,6 +118,8 @@ namespace Setup
         {
             // Camera
             Camera::CameraId = ini.GetLongValue("Camera", "CameraId", Camera::CameraId);
+            camera::Width = ini.GetLongValue("Camera", "Width", Camera::Width);
+            Camera::Height = ini.GetLongValue("Camera", "Height", Camera::Height);
 
             // Network
             Network::DataPort = ini.GetLongValue("Network", "DataPort", Network::DataPort);
@@ -138,6 +146,7 @@ namespace Setup
             Processing::MaxTargetSeparation = ini.GetDoubleValue("Processing", "MaxTargetSeparation", Processing::MaxTargetSeparation);
             Processing::MaxCornerSubPixelIterations = ini.GetLongValue("Processing", "MaxCornerSubPixelIterations", Processing::MaxCornerSubPixelIterations);
             Processing::CornerSubPixelThreshold = ini.GetDoubleValue("Processing", "CornerSubPixelThreshold", Processing::CornerSubPixelThreshold);
+            Processing::UseWorldCoordinates = ini.GetBoolValue("Processing", "UseWorldCoordinates", Processing::UseWorldCoordinates);
 
             // HSVFilter
             HSVFilter::LowH = ini.GetLongValue("HSVFilter", "LowH", HSVFilter::LowH);

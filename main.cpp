@@ -34,6 +34,8 @@ int main(int, char**) {
     logger = std::make_shared<spdlog::logger>("DeepSpaceVision", sinks.begin(), sinks.end());
     logger->set_level(Lightning::Setup::Diagnostics::LogLevel);
 
+    // TODO Setup cameras with v4l2
+
     logger->debug("Starting DeepSpaceVision");
 
     // Vision Processor

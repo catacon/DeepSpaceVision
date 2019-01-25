@@ -89,8 +89,6 @@ void TargetFinder::ApproximateContours(const std::vector<std::vector<cv::Point>>
 
 bool TargetFinder::Process(cv::Mat& image, std::vector<VisionData>& data)
 {
-    using namespace Setup::HSVFilter;
-
     // Convert image to HSV and gray
     cv::Mat hsvImage, grayImage;
     ConvertImage(image, hsvImage, grayImage);
@@ -98,7 +96,7 @@ bool TargetFinder::Process(cv::Mat& image, std::vector<VisionData>& data)
     // Filter based on color
     cv::Mat rangedImage;
 
-    FilterOnColor(hsvImage, rangedImage, cv::Scalar(LowH, LowS, LowV), cv::Scalar(HighH, HighS, HighV), MorphologyIterations);
+    FilterOnColor(hsvImage, rangedImage, cv::Scalar(Setup::HSVFilter::LowH, Setup::HSVFilter::LowS, Setup::HSVFilter::LowV), cv::Scalar(Setup::HSVFilter::HighH, Setup::HSVFilter::HighS, Setup::HSVFilter::HighV), MorphologyIterations);
 
     // Detect contours
     std::vector<std::vector<cv::Point>> contours;
@@ -113,80 +111,39 @@ bool TargetFinder::Process(cv::Mat& image, std::vector<VisionData>& data)
     std::vector<std::vector<cv::Point>> approx(contours.size());
     cv::Mat contourImage = cv::Mat(image.size(), CV_8UC1);
 
-    ApproximateContours(contours, approx, contourImage);
+    //ApproximateContours(contours, approx, contourImage);
 
+    // Find target sections
     std::vector<TargetSection> targetSections;
 
-    TargetSectionsFromContours(approx, targetSections, cv::Size(image.cols, image.rows));
+    TargetSectionsFromContours(contours, targetSections, cv::Size(image.cols, image.rows));
 
+    // Create targets from sections
     std::vector<Target> targets;
 
     SortTargetSections(targetSections, targets);
 
+    // Get subpixel measurement on target corners
     RefineTargetCorners(targets, grayImage);
 
-    std::vector<cv::Point2d> projectedPoints;
-    FindTargetTransforms(targets, _targetModel, _cameraModel, projectedPoints);
+    // Find the camera to target tranform
+    FindTargetTransforms(targets, _targetModel, _cameraModel, cv::Size(image.cols, image.rows));
 
-    // for (int i = 0; i < targets.size(); ++i)
-    // {
-    //     _logger->debug("Target {0} Distance: {1}, Yaw: {2}", i, targets[i].distance, targets[i].yaw);
-    // }
+    // Sort targets by horizontal position in image
+    std::sort(targets.begin(), targets.end(), [](Target t1, Target t2){ return (t1.data.z < t2.data.z); });
 
+    // Add targets to data packet - TODO this could be cleaner - redo VisionPacket?
     for (int i = 0; i < (int)targets.size(); ++i)
     {
-        targets[i].data.cameraId = 0;
+        targets[i].data.cameraId = 0;   // TODO
         targets[i].data.targetId = i;
-
-        targets[i].data.imageX = (targets[i].center.x - (image.cols / 2)) / (image.cols / 2);
-        targets[i].data.imageY = ((image.rows / 2) - targets[i].center.y) / (image.rows / 2);
 
         data.push_back(targets[i].data);
     }
 
     if (Setup::Diagnostics::DisplayDebugImages)
     {
-        cv::RNG rng(12345);
-        for (auto& target : targets)
-        {
-            cv::Scalar color = cv::Scalar(rng.uniform(0,255), rng.uniform(0, 255), rng.uniform(0, 255));
-
-            /*
-            cv::circle(image, target.sections[0].corners[0], 5, cv::Scalar(255,0,0), 1, cv::LINE_AA);
-            cv::circle(image, target.sections[1].corners[0], 5, cv::Scalar(255,0,0), 1, cv::LINE_AA);
-            cv::circle(image, target.sections[0].corners[1], 5, cv::Scalar(0,255,0), 1, cv::LINE_AA);
-            cv::circle(image, target.sections[1].corners[1], 5, cv::Scalar(0,255,0), 1, cv::LINE_AA);
-            cv::circle(image, target.sections[0].corners[2], 5, cv::Scalar(0,0,255), 1, cv::LINE_AA);
-            cv::circle(image, target.sections[1].corners[2], 5, cv::Scalar(0,0,255), 1, cv::LINE_AA);
-            cv::circle(image, target.sections[0].corners[3], 5, cv::Scalar(255,255,255), 1, cv::LINE_AA);
-            cv::circle(image, target.sections[1].corners[3], 5, cv::Scalar(255,255,255), 1, cv::LINE_AA);
-            */
-            
-            for (auto& pt : projectedPoints)
-            {
-                cv::circle(image, pt, 3, cv::Scalar(255,0,0), 1, cv::LINE_AA);
-            }            
-
-            auto textX = fmt::format("X: {0}", target.data.x);
-            auto textY = fmt::format("Y: {0}", target.data.y);
-            auto textZ = fmt::format("Z: {0}", target.data.z);
-
-            auto textRoll = fmt::format("Roll: {0}", target.data.roll);
-            auto textPitch = fmt::format("Pitch: {0}", target.data.pitch);
-            auto textYaw = fmt::format("Yaw: {0}", target.data.yaw);
-
-            auto textImageX = fmt::format("ImageX: {0}", target.data.imageX);
-            auto textImageY = fmt::format("ImageY: {0}", target.data.imageY);
-
-            cv::putText(image, textX, cv::Point(10,30), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
-            cv::putText(image, textY, cv::Point(10,50), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
-            cv::putText(image, textZ, cv::Point(10,70), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
-            cv::putText(image, textRoll, cv::Point(10,90), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
-            cv::putText(image, textPitch, cv::Point(10,110), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
-            cv::putText(image, textYaw, cv::Point(10,130), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
-            cv::putText(image, textImageX, cv::Point(10,150), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
-            cv::putText(image, textImageY, cv::Point(10,170), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
-        }
+        DrawDebugImage(image, targets);
 
         _debugImages.clear();
         _debugImages.push_back(std::make_pair("Raw", image));
@@ -202,8 +159,7 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
 
     // Evaluate each contour to see if it is a target section
     for (int i = 0; i < (int)contours.size(); ++i)
-    {
-        
+    {       
         double area = cv::contourArea(contours[i], false);  
         double perimeter = cv::arcLength(contours[i], true);
 
@@ -232,17 +188,11 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
             // Get corners
 
             std::vector<cv::KeyPoint> keyPoints;
-            cv::FAST(contourImage, keyPoints, Setup::Processing::FastThreshold, false, cv::FastFeatureDetector::DetectorType::TYPE_9_16);
+            cv::FAST(contourImage, keyPoints, Setup::Processing::FastThreshold, true, cv::FastFeatureDetector::DetectorType::TYPE_9_16);
 
-            std::vector<cv::Point2d> points;
-            for (int i = 0; i < keyPoints.size(); ++i)
-            {
-                points.push_back(keyPoints[i].pt);
-            }
-
-            // Combine close corner points
+            // Combine close corner points - TODO with non-max suppression on is this necessary?
             std::vector<int> labels;
-            int numLabels = cv::partition(points, labels, [this](cv::Point2d p1, cv::Point2d p2){ return (Distance(p1, p2) < Setup::Processing::CornerDistanceThreshold); });
+            int numLabels = cv::partition(keyPoints, labels, [this](cv::KeyPoint p1, cv::KeyPoint p2){ return (Distance(p1.pt, p2.pt) < Setup::Processing::CornerDistanceThreshold); });
 
             if (numLabels == 4) // TODO define number of corners?
             {
@@ -255,13 +205,11 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
                     cv::Point2d newPoint;
                     int count(0);
 
-                    for (size_t j = 0; j < points.size(); ++j)
+                    for (size_t j = 0; j < keyPoints.size(); ++j)
                     {
                         if (labels[j] == i)
                         {
-                            newPoint.x += points[j].x;
-                            newPoint.y += points[j].y;
-
+                            newPoint += points[j].pt;
                             ++count;
                         }
                     }
@@ -271,19 +219,16 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
                         break;
                     }
 
-                    newPoint.x /= count;
-                    newPoint.y /= count;
+                    newPoint /= count;
 
                     combinedPoints[i] = newPoint;
 
-                    center.x += newPoint.x;
-                    center.y += newPoint.y;
+                    center += newPoint;
                 }
 
-                center.x /= combinedPoints.size();
-                center.y /= combinedPoints.size();
+                center / (int)combinedPoints.size();
 
-                TargetSection section { combinedPoints, rect.angle, shapeFactor, center };
+                TargetSection section { combinedPoints, rect, shapeFactor, center };
 
                 sections.push_back(section);
             }
@@ -300,7 +245,7 @@ void TargetFinder::SortTargetSections(const std::vector<TargetSection>& sections
         for (int j = i + 1; j < (int)sections.size(); ++j)
         {
             // TODO this needs work
-            double angleDiff = std::abs(sections[i].angle - sections[j].angle);
+            double angleDiff = std::abs(sections[i].rect.angle - sections[j].rect.angle);
             double centerDiff = Distance(sections[i].center, sections[j].center);
 
             if (angleDiff > Setup::Processing::MinAngleDiff && angleDiff < Setup::Processing::MaxAngleDiff && centerDiff < Setup::Processing::MaxTargetSeparation)
@@ -356,7 +301,7 @@ void TargetFinder::RefineTargetCorners(std::vector<Target>& targets, const cv::M
     }
 }
 
-void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const TargetModel& targetModel, const CameraModel& cameraModel, std::vector<cv::Point2d>& projectedPoints)
+void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const TargetModel& targetModel, const CameraModel& cameraModel, const cv::Size imageSize)
 {
     // Get model key points
     auto keyPoints = targetModel.GetKeyPoints();
@@ -376,9 +321,8 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
             target.sections[1].corners[3]
         };
 
-        static cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);     
-        static cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
-        static bool guessOk = false; 
+        cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);     
+        cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
 
         if (keyPoints.size() <= 0 || imagePoints.size() <= 0)
         {
@@ -387,7 +331,7 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         }
 
         // Find transform
-        bool solved = cv::solvePnP(keyPoints, imagePoints, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), rvec, tvec, guessOk, cv::SOLVEPNP_ITERATIVE);
+        bool solved = cv::solvePnP(keyPoints, imagePoints, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), rvec, tvec, false, cv::SOLVEPNP_ITERATIVE);
 
         if (!solved)
         {
@@ -395,14 +339,28 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
             continue;
         }
 
-        guessOk = true;
+        // TODO Translate from camera to robot
 
-        // convert rotation vector to rotation matrix
-        cv::Mat Rc;
-        cv::Rodrigues(rvec, Rc);
+        // Convert rotation vector to rotation matrix
+        cv::Mat R;
+        cv::Rodrigues(rvec, R);
 
-        // Get Euler angles from rotation maxtrix - TODO use decompose matrix
-        cv::Vec3d euler = EulerAnglesFromRotationMaxtrix(Rc);
+        // Compute inverse of transform - this gives camera position in target coordinates
+        if (Setup::Processing::UseWorldCoordinates)
+        {
+            R = R.t();              // transpose of R which is also the inverse
+            tvec = -Rt * tvec;      // inverse of tvec
+        }
+        
+        // Build transform matrix - not used currently
+        /*
+        cv::Mat P = cv::Mat::eye(4, 4, R.type());           // T is 4x4
+        P( cv::Range(0,3), cv::Range(0,3) ) = R * 1;        // copies R into T
+        P( cv::Range(0,3), cv::Range(3,4) ) = tvec * 1;     // copies tvec into T
+        */
+
+        // Get Euler angles from rotation maxtrix
+        cv::Vec3d euler = EulerAnglesFromRotationMaxtrix(R);
 
         euler[0] *= (180/CV_PI);
         euler[1] *= (180/CV_PI);
@@ -412,29 +370,13 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         target.data.x = tvec.at<double>(0,0);
         target.data.y = tvec.at<double>(1,0);
         target.data.z = tvec.at<double>(2,0);
-        target.data.roll = euler[2];
         target.data.pitch = euler[0];
         target.data.yaw = euler[1];
-        target.data.imageX = (double)target.center.x;
-        target.data.imageY = (double)target.center.y;
-
-        //_logger->debug("Translation: {0}, {1}, {2}", tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0));
-        //_logger->debug("Euler Angles: {0}, {1}, {2}", euler[0], euler[1], euler[2]);
-
-        // TODO Translate from camera to robot
-
-        // Do I need the inverse transform for anything?
-        // Should all calculations be done in target/world coordinate?
-
-        // Project target axis points onto image using the transformation
-        if (Setup::Diagnostics::DisplayDebugImages)
-        {
-            auto targetAxes = targetModel.GetTargetAxes();
-            cv::projectPoints(targetAxes, rvec, tvec, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), projectedPoints);
-
-        }
-
-
+        target.data.roll = euler[2];
+        target.data.imageX = (target.center.x - (imageSize.width / 2)) / (imageSize.width / 2);
+        target.data.imageY = ((imageSize.height / 2) - target.center.y) / (imageSize.height / 2);
+        target.rvec = rvec;
+        target.tvec = tvec;
     }
 
 }
@@ -447,7 +389,7 @@ double TargetFinder::Distance(const cv::Point2d& pt1, const cv::Point2d& pt2)
     return std::sqrt(std::pow(dX, 2) + std::pow(dY, 2));
 }
 
-void TargetFinder::ShowDebugImages()
+int TargetFinder::ShowDebugImages()
 {
     for (auto& image : _debugImages)
     {
@@ -455,26 +397,103 @@ void TargetFinder::ShowDebugImages()
         cv::imshow(image.first, image.second);
     }
 
-    cv::waitKey(10);
+    return cv::waitKey(1);
 }
 
 cv::Vec3d TargetFinder::EulerAnglesFromRotationMaxtrix(const cv::Mat& R)
 {     
-    double sy = sqrt(R.at<double>(0,0) * R.at<double>(0,0) +  R.at<double>(1,0) * R.at<double>(1,0) );
+    double sy = std::sqrt(R.at<double>(0,0) * R.at<double>(0,0) +  R.at<double>(1,0) * R.at<double>(1,0) );
  
-    double x, y, z;
+    cv::Vec3d vec;
     if (sy > 1e-6)  // Is the matrix singular
     {
-        x = atan2(R.at<double>(2,1) , R.at<double>(2,2));
-        y = atan2(-R.at<double>(2,0), sy);
-        z = atan2(R.at<double>(1,0), R.at<double>(0,0));
+        vec[0] = atan2(R.at<double>(2,1) , R.at<double>(2,2));  // x
+        vec[1] = atan2(-R.at<double>(2,0), sy);                 // y
+        vec[2] = atan2(R.at<double>(1,0), R.at<double>(0,0));   // x
     }
     else
     {
-        x = atan2(-R.at<double>(1,2), R.at<double>(1,1));
-        y = atan2(-R.at<double>(2,0), sy);
-        z = 0;
+        vec[0] = atan2(-R.at<double>(1,2), R.at<double>(1,1));  // x
+        vec[1] = atan2(-R.at<double>(2,0), sy);                 // y
+        vec[2] = 0;                                             // z
     }
-    return cv::Vec3d(x, y, z);
-  
+
+    return vec;  
+}
+
+void TargetFinder::DrawDebugImage(cv::Mat& image, const std::vector<Target>& targets)
+{
+    RNG rng(12345);
+    for (auto& target : targets)
+    {            
+        cv::Scalar color(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+
+        // Project target points back onto image
+        cv::Mat rvec, tvec;
+        if (Setup:Processing::UseWorldCoordinates)
+        {
+            target.GetInverseTransforms(rvec, tvec);
+        }
+        else
+        {
+            rvec = target.rvec;
+            tvec = target.tvec;
+        }
+        
+        std::vector<cv::Point2d> projectedPoints;
+        cv::projectPoints(_targetModel.GetKeyPoints(), rvec, tvec, _cameraModel.GetCameraMatrix(), _cameraModel.GetDistanceCoefficients(), projectedPoints);
+
+        for (auto& pt : projectedPoints)
+        {
+            cv::circle(image, pt, 3, color, 1, cv::LINE_AA);
+        }         
+
+        // Show target section bounding boxes
+        for (auto& section : target.sections)
+        {
+            Point2f vertices[4]; 
+            section.rect.points( vertices );
+
+            for( int j = 0; j < 4; j++ )
+            {
+                cv::line( image, vertices[j], vertices[(j+1)%4], color, 1, cv::LINE_AA );
+            }
+        }
+
+        // Show target data
+        std::vector<std::string> imageText;   
+
+        // TODO make this into a function?
+        imageText.push_back(fmt::format("X: {0}", target.data.x));
+        imageText.push_back(fmt::format("Y: {0}", target.data.y));
+        imageText.push_back(fmt::format("Z: {0}", target.data.z));
+
+        imageText.push_back(fmt::format("Roll: {0}", target.data.roll));
+        imageText.push_back(fmt::format("Pitch: {0}", target.data.pitch));
+        imageText.push_back(fmt::format("Yaw: {0}", target.data.yaw));
+
+        imageText.push_back(fmt::format("ImageX: {0}", target.data.imageX));
+        imageText.push_back(fmt::format("ImageY: {0}", target.data.imageY));
+
+        for (int i = 0; i < (int)imageText.size(); ++i)
+        {
+            cv::putText(image, imageText[i], cv::Point(10,30 + i*20), cv::FONT_HERSHEY_PLAIN, 1.0, color);
+        }
+    }
+}
+
+void Target::GetInverseTransforms(cv::Mat& rvec, cv::Mat& tvec)
+{
+    // Get rotation matrix from vector
+    cv::Mat R;
+    cv::Rodrigues(rvec, R);
+
+    // Transpose R to get inverse
+    R = R.t();        
+
+    // Inverse of tvec      
+    tvec = -Rt * tvec;
+
+    // Convert rotation vector back to matrix      
+    cv::Rodrigues(R, rvec);
 }

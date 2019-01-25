@@ -27,6 +27,10 @@ private:
 
     void Process();
 
+    void InitializeVideoWriters();
+    std::string GetRawFileName();
+    std::string GetProcessedFileName();
+
     std::shared_ptr<spdlog::logger> _logger;
 
     std::unique_ptr<cv::VideoCapture> _targetCapture;
@@ -36,6 +40,9 @@ private:
     std::atomic<bool> _runProcessing;
 
     std::atomic<bool> _isProcessorRunning;
+
+    std::unique_ptr<cv::VideoWriter> _rawVideoWriter;
+    std::unique_ptr<cv::VideoWriter> _processedVideoWriter;
 };
 
 }
