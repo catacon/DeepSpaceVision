@@ -369,6 +369,8 @@ TargetModel.h
 /home/aaron/FRC2019/DeepSpaceVision/TargetModel.h
 Setup.h
 /home/aaron/FRC2019/DeepSpaceVision/Setup.h
+VisionData.hpp
+/home/aaron/FRC2019/DeepSpaceVision/VisionData.hpp
 
 /home/aaron/FRC2019/DeepSpaceVision/TargetFinder.h
 memory
@@ -381,6 +383,8 @@ TargetModel.h
 /home/aaron/FRC2019/DeepSpaceVision/TargetModel.h
 CameraModel.h
 /home/aaron/FRC2019/DeepSpaceVision/CameraModel.h
+VisionData.hpp
+/home/aaron/FRC2019/DeepSpaceVision/VisionData.hpp
 
 /home/aaron/FRC2019/DeepSpaceVision/TargetModel.h
 vector

@@ -19,7 +19,7 @@ public:
 
     ~DataSender();
 
-    bool Send(const VisionData&);
+    bool Send(const std::vector<VisionData>&);
 
 private:
     std::shared_ptr<spdlog::logger> _logger;

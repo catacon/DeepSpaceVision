@@ -13,7 +13,7 @@ DataSender::DataSender(std::shared_ptr<spdlog::logger> logger)
 {
     std::string s = std::string("tcp://*:" + std::to_string(Setup::Network::DataPort));
     //TODO
-    //_socket.bind("tcp://*:5556");
+    _socket.bind(s);
 }
 
 DataSender::~DataSender()
@@ -22,9 +22,15 @@ DataSender::~DataSender()
     zmq_ctx_destroy(&_context);
 }
 
-bool DataSender::Send(const VisionData& d)
+bool DataSender::Send(const std::vector<VisionData>& d)
 {
-    nlohmann::json j = d;
+    std::vector<VisionMessage> visionMessages
+    {
+        VisionMessage{ 0, d}
+    };
+    
+
+    nlohmann::json j = visionMessages;
     std::string s = j.dump();
 
     zmq::message_t message(s.length());
@@ -32,7 +38,7 @@ bool DataSender::Send(const VisionData& d)
 
 
 // TODO
-    //_socket.send(message);
+    _socket.send(message);
 
     return true;
 }

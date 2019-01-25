@@ -120,11 +120,14 @@ CMakeFiles/DeepSpaceVision.dir/Setup.cpp.o
  /home/aaron/FRC2019/DeepSpaceVision/Setup.cpp
  /home/aaron/FRC2019/DeepSpaceVision/Setup.h
 CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o
+ ..//json.hpp
  /home/aaron/FRC2019/DeepSpaceVision/CameraModel.h
  /home/aaron/FRC2019/DeepSpaceVision/Setup.h
  /home/aaron/FRC2019/DeepSpaceVision/TargetFinder.cpp
  /home/aaron/FRC2019/DeepSpaceVision/TargetFinder.h
  /home/aaron/FRC2019/DeepSpaceVision/TargetModel.h
+ /home/aaron/FRC2019/DeepSpaceVision/VisionData.hpp
+ /home/aaron/FRC2019/DeepSpaceVision/VisionStatus.hpp
  /usr/local/include/opencv4/opencv2/calib3d.hpp
  /usr/local/include/opencv4/opencv2/core.hpp
  /usr/local/include/opencv4/opencv2/core/affine.hpp
@@ -222,12 +225,15 @@ CMakeFiles/DeepSpaceVision.dir/TargetFinder.cpp.o
  /usr/local/include/opencv4/opencv2/video/tracking.hpp
  /usr/local/include/opencv4/opencv2/videoio.hpp
 CMakeFiles/DeepSpaceVision.dir/main.cpp.o
+ ..//json.hpp
  /home/aaron/FRC2019/DeepSpaceVision/CameraModel.h
  /home/aaron/FRC2019/DeepSpaceVision/DataSender.h
  /home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.h
  /home/aaron/FRC2019/DeepSpaceVision/Setup.h
  /home/aaron/FRC2019/DeepSpaceVision/TargetFinder.h
  /home/aaron/FRC2019/DeepSpaceVision/TargetModel.h
+ /home/aaron/FRC2019/DeepSpaceVision/VisionData.hpp
+ /home/aaron/FRC2019/DeepSpaceVision/VisionStatus.hpp
  /home/aaron/FRC2019/DeepSpaceVision/main.cpp
  /usr/local/include/opencv4/opencv2/calib3d.hpp
  /usr/local/include/opencv4/opencv2/core.hpp

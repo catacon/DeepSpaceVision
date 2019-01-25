@@ -2,6 +2,7 @@
 #include "CameraModel.h"
 #include "TargetModel.h"
 #include "Setup.h"
+#include "VisionData.hpp"
 
 using namespace Lightning;
 
@@ -86,7 +87,7 @@ void TargetFinder::ApproximateContours(const std::vector<std::vector<cv::Point>>
 
 }
 
-bool TargetFinder::Process(cv::Mat& image, VisionData& data)
+bool TargetFinder::Process(cv::Mat& image, std::vector<VisionData>& data)
 {
     using namespace Setup::HSVFilter;
 
@@ -132,6 +133,17 @@ bool TargetFinder::Process(cv::Mat& image, VisionData& data)
     //     _logger->debug("Target {0} Distance: {1}, Yaw: {2}", i, targets[i].distance, targets[i].yaw);
     // }
 
+    for (int i = 0; i < (int)targets.size(); ++i)
+    {
+        targets[i].data.cameraId = 0;
+        targets[i].data.targetId = i;
+
+        targets[i].data.imageX = (targets[i].center.x - (image.cols / 2)) / (image.cols / 2);
+        targets[i].data.imageY = ((image.rows / 2) - targets[i].center.y) / (image.rows / 2);
+
+        data.push_back(targets[i].data);
+    }
+
     if (Setup::Diagnostics::DisplayDebugImages)
     {
         cv::RNG rng(12345);
@@ -152,15 +164,28 @@ bool TargetFinder::Process(cv::Mat& image, VisionData& data)
             
             for (auto& pt : projectedPoints)
             {
-                cv::circle(image, pt, 5, cv::Scalar(255,0,0), 1, cv::LINE_AA);
+                cv::circle(image, pt, 3, cv::Scalar(255,0,0), 1, cv::LINE_AA);
             }            
 
-            //cv::line(image, projectedPoints[0], projectedPoints[1], cv::Scalar(255,0,0), 1, cv::LINE_AA);
-            //cv::line(image, projectedPoints[0], projectedPoints[2], cv::Scalar(0,255,0), 1, cv::LINE_AA);
-            //cv::line(image, projectedPoints[0], projectedPoints[3], cv::Scalar(0,0,255), 1, cv::LINE_AA);
-            
+            auto textX = fmt::format("X: {0}", target.data.x);
+            auto textY = fmt::format("Y: {0}", target.data.y);
+            auto textZ = fmt::format("Z: {0}", target.data.z);
 
-            cv::circle(image, target.center, 5, color, cv::FILLED, cv::LINE_AA);
+            auto textRoll = fmt::format("Roll: {0}", target.data.roll);
+            auto textPitch = fmt::format("Pitch: {0}", target.data.pitch);
+            auto textYaw = fmt::format("Yaw: {0}", target.data.yaw);
+
+            auto textImageX = fmt::format("ImageX: {0}", target.data.imageX);
+            auto textImageY = fmt::format("ImageY: {0}", target.data.imageY);
+
+            cv::putText(image, textX, cv::Point(10,30), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
+            cv::putText(image, textY, cv::Point(10,50), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
+            cv::putText(image, textZ, cv::Point(10,70), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
+            cv::putText(image, textRoll, cv::Point(10,90), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
+            cv::putText(image, textPitch, cv::Point(10,110), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
+            cv::putText(image, textYaw, cv::Point(10,130), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
+            cv::putText(image, textImageX, cv::Point(10,150), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
+            cv::putText(image, textImageY, cv::Point(10,170), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0,255,0));
         }
 
         _debugImages.clear();
@@ -351,8 +376,9 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
             target.sections[1].corners[3]
         };
 
-        cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);     
-        cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1); 
+        static cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);     
+        static cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
+        static bool guessOk = false; 
 
         if (keyPoints.size() <= 0 || imagePoints.size() <= 0)
         {
@@ -361,8 +387,7 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         }
 
         // Find transform
-        bool solved = cv::solvePnP(keyPoints, imagePoints, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), rvec, tvec, false, cv::SOLVEPNP_EPNP);
-        //bool solved = cv::solvePnPRansac(keyPoints, imagePoints, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), rvec, tvec, false);
+        bool solved = cv::solvePnP(keyPoints, imagePoints, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), rvec, tvec, guessOk, cv::SOLVEPNP_ITERATIVE);
 
         if (!solved)
         {
@@ -370,19 +395,31 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
             continue;
         }
 
+        guessOk = true;
+
         // convert rotation vector to rotation matrix
         cv::Mat Rc;
         cv::Rodrigues(rvec, Rc);
 
-        // Get Euler angles from rotation maxtrix
+        // Get Euler angles from rotation maxtrix - TODO use decompose matrix
         cv::Vec3d euler = EulerAnglesFromRotationMaxtrix(Rc);
 
         euler[0] *= (180/CV_PI);
         euler[1] *= (180/CV_PI);
         euler[2] *= (180/CV_PI);
 
-        _logger->debug("Translation: {0}, {1}, {2}", tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0));
-        _logger->debug("Euler Angles: {0}, {1}, {2}", euler[0], euler[1], euler[2]);
+        target.data.status = VisionStatus::TargetFound;
+        target.data.x = tvec.at<double>(0,0);
+        target.data.y = tvec.at<double>(1,0);
+        target.data.z = tvec.at<double>(2,0);
+        target.data.roll = euler[2];
+        target.data.pitch = euler[0];
+        target.data.yaw = euler[1];
+        target.data.imageX = (double)target.center.x;
+        target.data.imageY = (double)target.center.y;
+
+        //_logger->debug("Translation: {0}, {1}, {2}", tvec.at<double>(0,0), tvec.at<double>(1,0), tvec.at<double>(2,0));
+        //_logger->debug("Euler Angles: {0}, {1}, {2}", euler[0], euler[1], euler[2]);
 
         // TODO Translate from camera to robot
 

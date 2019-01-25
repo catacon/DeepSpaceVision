@@ -7,6 +7,7 @@
 
 #include "TargetModel.h"
 #include "CameraModel.h"
+#include "VisionData.hpp"
 
 namespace Lightning
 {
@@ -33,8 +34,7 @@ public:
 
     cv::Point2f center;
 
-    double distance;
-    double yaw;
+    VisionData data;
 };
 
 class TargetFinder
@@ -44,7 +44,7 @@ public:
 
     TargetFinder(std::shared_ptr<spdlog::logger>, TargetModel, CameraModel);
 
-    bool Process(cv::Mat&, VisionData&);
+    bool Process(cv::Mat&, std::vector<VisionData>&);
 
     void ShowDebugImages();
 
