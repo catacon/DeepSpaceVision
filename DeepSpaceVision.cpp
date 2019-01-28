@@ -88,11 +88,7 @@ void DeepSpaceVision::Process()
 
             if (_targetFinder->Process(image, data))
             {
-                if (_dataSender->Send(data))
-                {
-
-                }
-                else
+                if (!_dataSender->Send(data))
                 {
                     _logger->error("Failed to send data");   // TODO add error code
                 }

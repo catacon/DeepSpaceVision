@@ -96,7 +96,7 @@ bool TargetFinder::Process(cv::Mat& image, std::vector<VisionData>& data)
     // Filter based on color
     cv::Mat rangedImage;
 
-    FilterOnColor(hsvImage, rangedImage, cv::Scalar(Setup::HSVFilter::LowH, Setup::HSVFilter::LowS, Setup::HSVFilter::LowV), cv::Scalar(Setup::HSVFilter::HighH, Setup::HSVFilter::HighS, Setup::HSVFilter::HighV), MorphologyIterations);
+    FilterOnColor(hsvImage, rangedImage, cv::Scalar(Setup::HSVFilter::LowH, Setup::HSVFilter::LowS, Setup::HSVFilter::LowV), cv::Scalar(Setup::HSVFilter::HighH, Setup::HSVFilter::HighS, Setup::HSVFilter::HighV), Setup::HSVFilter::MorphologyIterations);
 
     // Detect contours
     std::vector<std::vector<cv::Point>> contours;
@@ -111,12 +111,12 @@ bool TargetFinder::Process(cv::Mat& image, std::vector<VisionData>& data)
     std::vector<std::vector<cv::Point>> approx(contours.size());
     cv::Mat contourImage = cv::Mat(image.size(), CV_8UC1);
 
-    //ApproximateContours(contours, approx, contourImage);
+    ApproximateContours(contours, approx, contourImage);
 
     // Find target sections
     std::vector<TargetSection> targetSections;
 
-    TargetSectionsFromContours(contours, targetSections, cv::Size(image.cols, image.rows));
+    TargetSectionsFromContours(approx, targetSections, cv::Size(image.cols, image.rows));
 
     // Create targets from sections
     std::vector<Target> targets;
@@ -130,7 +130,7 @@ bool TargetFinder::Process(cv::Mat& image, std::vector<VisionData>& data)
     FindTargetTransforms(targets, _targetModel, _cameraModel, cv::Size(image.cols, image.rows));
 
     // Sort targets by horizontal position in image
-    std::sort(targets.begin(), targets.end(), [](Target t1, Target t2){ return (t1.data.z < t2.data.z); });
+    std::sort(targets.begin(), targets.end(), [](Target t1, Target t2){ return (t1.data.imageX < t2.data.imageX); });
 
     // Add targets to data packet - TODO this could be cleaner - redo VisionPacket?
     for (int i = 0; i < (int)targets.size(); ++i)
@@ -183,12 +183,12 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
         
             cv::drawContours( contourImage, contours, i, cv::Scalar(255), cv::FILLED, cv::LINE_AA);
 
-            cv::GaussianBlur( contourImage, contourImage, cv::Size(3,3), 2);
+            //cv::GaussianBlur( contourImage, contourImage, cv::Size(3,3), 2);
 
             // Get corners
 
             std::vector<cv::KeyPoint> keyPoints;
-            cv::FAST(contourImage, keyPoints, Setup::Processing::FastThreshold, true, cv::FastFeatureDetector::DetectorType::TYPE_9_16);
+            cv::FAST(contourImage, keyPoints, Setup::Processing::FastThreshold, false, cv::FastFeatureDetector::DetectorType::TYPE_9_16);
 
             // Combine close corner points - TODO with non-max suppression on is this necessary?
             std::vector<int> labels;
@@ -198,18 +198,18 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
             {
                 std::vector<cv::Point2f> combinedPoints(numLabels);
 
-                cv::Point2d center(0, 0);
+                cv::Point2f center(0, 0);
 
                 for (size_t i = 0; i < combinedPoints.size(); ++i)
                 {
-                    cv::Point2d newPoint;
+                    cv::Point2f newPoint;
                     int count(0);
 
                     for (size_t j = 0; j < keyPoints.size(); ++j)
                     {
                         if (labels[j] == i)
                         {
-                            newPoint += points[j].pt;
+                            newPoint += keyPoints[j].pt;
                             ++count;
                         }
                     }
@@ -226,9 +226,9 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
                     center += newPoint;
                 }
 
-                center / (int)combinedPoints.size();
+                center /= (int)combinedPoints.size();
 
-                TargetSection section { combinedPoints, rect, shapeFactor, center };
+                TargetSection section { combinedPoints, rect, shapeFactor, center, area };
 
                 sections.push_back(section);
             }
@@ -248,7 +248,10 @@ void TargetFinder::SortTargetSections(const std::vector<TargetSection>& sections
             double angleDiff = std::abs(sections[i].rect.angle - sections[j].rect.angle);
             double centerDiff = Distance(sections[i].center, sections[j].center);
 
-            if (angleDiff > Setup::Processing::MinAngleDiff && angleDiff < Setup::Processing::MaxAngleDiff && centerDiff < Setup::Processing::MaxTargetSeparation)
+               // Adjust target separation threshold based on target size which correlates to distance
+            double targetSeparationThreshold = Setup::Processing::MaxTargetSeparation * (sections[i].area / 10000);
+
+            if (angleDiff > Setup::Processing::MinAngleDiff && angleDiff < Setup::Processing::MaxAngleDiff && centerDiff < targetSeparationThreshold)
             {
                 Target newTarget;
 
@@ -260,6 +263,7 @@ void TargetFinder::SortTargetSections(const std::vector<TargetSection>& sections
 
                 targets.push_back(newTarget);
 
+                i = j;
                 break;
             }
         }
@@ -270,8 +274,7 @@ void TargetFinder::RefineTargetCorners(std::vector<Target>& targets, const cv::M
 {
     for (auto& target : targets)
     {   
-        target.center.x = 0;
-        target.center.y = 0;
+        target.center = cv::Point2f(0,0);
 
         // Get sub pixels for each corner
         for (auto& section : target.sections)
@@ -290,18 +293,16 @@ void TargetFinder::RefineTargetCorners(std::vector<Target>& targets, const cv::M
                 _logger->error("RefineTargetCorners() caught exception: {0}", ex.what());
                 continue;
             }
-            target.center.x += section.center.x;
-            target.center.y += section.center.y;
+            target.center += section.center;
 
             std::sort(section.corners.begin(), section.corners.end(), [](cv::Point2f p1, cv::Point2f p2){ return p1.x < p1.x && p1.y > p2.y;});
         }
 
-        target.center.x /= target.sections.size();
-        target.center.y /= target.sections.size();
+        target.center /= (int)target.sections.size();
     }
 }
 
-void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const TargetModel& targetModel, const CameraModel& cameraModel, const cv::Size imageSize)
+void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const TargetModel& targetModel, const CameraModel& cameraModel, const cv::Size& imageSize)
 {
     // Get model key points
     auto keyPoints = targetModel.GetKeyPoints();
@@ -311,6 +312,7 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         // Set image points
         std::vector<cv::Point2d> imagePoints
         {
+            target.center,
             target.sections[0].corners[0],
             target.sections[1].corners[0],
             target.sections[0].corners[1],
@@ -349,7 +351,9 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         if (Setup::Processing::UseWorldCoordinates)
         {
             R = R.t();              // transpose of R which is also the inverse
-            tvec = -Rt * tvec;      // inverse of tvec
+            tvec = -R * tvec;       // inverse of tvec
+
+            cv::Rodrigues(R, rvec);
         }
         
         // Build transform matrix - not used currently
@@ -373,8 +377,8 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         target.data.pitch = euler[0];
         target.data.yaw = euler[1];
         target.data.roll = euler[2];
-        target.data.imageX = (target.center.x - (imageSize.width / 2)) / (imageSize.width / 2);
-        target.data.imageY = ((imageSize.height / 2) - target.center.y) / (imageSize.height / 2);
+        target.data.imageX = (target.center.x - (imageSize.width / 2.0)) / (imageSize.width / 2.0);
+        target.data.imageY = ((imageSize.height / 2.0) - target.center.y) / (imageSize.height / 2.0);
         target.rvec = rvec;
         target.tvec = tvec;
     }
@@ -423,21 +427,17 @@ cv::Vec3d TargetFinder::EulerAnglesFromRotationMaxtrix(const cv::Mat& R)
 
 void TargetFinder::DrawDebugImage(cv::Mat& image, const std::vector<Target>& targets)
 {
-    RNG rng(12345);
-    for (auto& target : targets)
+    cv::RNG rng(12345);
+    for (int target = 0; target < (int)targets.size(); ++target)
     {            
         cv::Scalar color(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
 
         // Project target points back onto image
-        cv::Mat rvec, tvec;
-        if (Setup:Processing::UseWorldCoordinates)
+        cv::Mat rvec = targets[target].rvec;
+        cv::Mat tvec = targets[target].tvec;
+        if (Setup::Processing::UseWorldCoordinates)
         {
-            target.GetInverseTransforms(rvec, tvec);
-        }
-        else
-        {
-            rvec = target.rvec;
-            tvec = target.tvec;
+            targets[target].GetInverseTransforms(rvec, tvec);
         }
         
         std::vector<cv::Point2d> projectedPoints;
@@ -449,10 +449,20 @@ void TargetFinder::DrawDebugImage(cv::Mat& image, const std::vector<Target>& tar
         }         
 
         // Show target section bounding boxes
-        for (auto& section : target.sections)
+        for (auto section : targets[target].sections)
         {
-            Point2f vertices[4]; 
-            section.rect.points( vertices );
+            // TODO DO THIS BETTER AND SOMEWHERE ELSE
+            if (section.rect.size.width < section.rect.size.height)
+            {
+                section.rect.angle -= 180;
+            }
+            else
+            {
+                section.rect.angle -= 90;
+            }
+
+            cv::Point2f vertices[4]; 
+            section.rect.points(vertices);
 
             for( int j = 0; j < 4; j++ )
             {
@@ -464,25 +474,25 @@ void TargetFinder::DrawDebugImage(cv::Mat& image, const std::vector<Target>& tar
         std::vector<std::string> imageText;   
 
         // TODO make this into a function?
-        imageText.push_back(fmt::format("X: {0}", target.data.x));
-        imageText.push_back(fmt::format("Y: {0}", target.data.y));
-        imageText.push_back(fmt::format("Z: {0}", target.data.z));
+        imageText.push_back(fmt::format("X: {:03.1f}", targets[target].data.x / 25.4));
+        imageText.push_back(fmt::format("Y: {:03.1f}", targets[target].data.y / 25.4));
+        imageText.push_back(fmt::format("Z: {:03.1f}", targets[target].data.z / 25.4));
 
-        imageText.push_back(fmt::format("Roll: {0}", target.data.roll));
-        imageText.push_back(fmt::format("Pitch: {0}", target.data.pitch));
-        imageText.push_back(fmt::format("Yaw: {0}", target.data.yaw));
+        imageText.push_back(fmt::format("Roll: {:03.1f}", targets[target].data.roll));
+        imageText.push_back(fmt::format("Pitch: {:03.1f}", targets[target].data.pitch));
+        imageText.push_back(fmt::format("Yaw: {:03.1f}", targets[target].data.yaw));
 
-        imageText.push_back(fmt::format("ImageX: {0}", target.data.imageX));
-        imageText.push_back(fmt::format("ImageY: {0}", target.data.imageY));
+        imageText.push_back(fmt::format("ImageX: {:03.1f}", targets[target].data.imageX));
+        imageText.push_back(fmt::format("ImageY: {:03.1f}", targets[target].data.imageY));
 
         for (int i = 0; i < (int)imageText.size(); ++i)
         {
-            cv::putText(image, imageText[i], cv::Point(10,30 + i*20), cv::FONT_HERSHEY_PLAIN, 1.0, color);
+            cv::putText(image, imageText[i], cv::Point(10,30 + target*200 + i*20), cv::FONT_HERSHEY_PLAIN, 1.0, color);
         }
     }
 }
 
-void Target::GetInverseTransforms(cv::Mat& rvec, cv::Mat& tvec)
+void Target::GetInverseTransforms(cv::Mat& rvec, cv::Mat& tvec) const
 {
     // Get rotation matrix from vector
     cv::Mat R;
@@ -492,7 +502,7 @@ void Target::GetInverseTransforms(cv::Mat& rvec, cv::Mat& tvec)
     R = R.t();        
 
     // Inverse of tvec      
-    tvec = -Rt * tvec;
+    tvec = -R * tvec;
 
     // Convert rotation vector back to matrix      
     cv::Rodrigues(R, rvec);

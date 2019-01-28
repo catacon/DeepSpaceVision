@@ -25,6 +25,7 @@ public:
     cv::RotatedRect rect;
     double score; 
     cv::Point2f center;
+    double area;
 };
 
 class Target
@@ -36,7 +37,7 @@ public:
     cv::Mat rvec;
     cv::Mat tvec;
 
-    void GetInverseTransforms(cv::Mat&, cv::Mat&);
+    void GetInverseTransforms(cv::Mat&, cv::Mat&) const;
 };
 
 class TargetFinder
@@ -66,7 +67,7 @@ private:
 
     void RefineTargetCorners(std::vector<Target>&, const cv::Mat&);
 
-    void FindTargetTransforms(std::vector<Target>&, const TargetModel&, const CameraModel&, const cv::Size);
+    void FindTargetTransforms(std::vector<Target>&, const TargetModel&, const CameraModel&, const cv::Size&);
 
     double Distance(const cv::Point2d&, const cv::Point2d&);
 

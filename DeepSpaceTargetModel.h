@@ -13,6 +13,7 @@ public:
     DeepSpaceTargetModel() : TargetModel()
     {
         _keyPoints = std::vector<cv::Point3d> {
+            {185.76, 73.985, 0},
             {34.978, 0, 0},
             {336.542, 0, 0},
             {84.16, 12.719, 0},

@@ -118,7 +118,7 @@ namespace Setup
         {
             // Camera
             Camera::CameraId = ini.GetLongValue("Camera", "CameraId", Camera::CameraId);
-            camera::Width = ini.GetLongValue("Camera", "Width", Camera::Width);
+            Camera::Width = ini.GetLongValue("Camera", "Width", Camera::Width);
             Camera::Height = ini.GetLongValue("Camera", "Height", Camera::Height);
 
             // Network
