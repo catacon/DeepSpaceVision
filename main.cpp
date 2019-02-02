@@ -3,6 +3,8 @@
 
 #include <opencv2/opencv.hpp>
 #include "spdlog/spdlog.h"
+#include "spdlog/sinks/ansicolor_sink.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 #include "DeepSpaceVision.h"
 #include "Setup.h"
@@ -14,7 +16,7 @@ void sigint_handler(int signal);
 // Logger
 std::vector<spdlog::sink_ptr> sinks {
     std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>(),
-    std::make_shared<spdlog::sinks::simple_file_sink_mt>("DeepSpaceVision.log")
+    std::make_shared<spdlog::sinks::basic_file_sink_mt>("DeepSpaceVision.log")
 };
 
 std::shared_ptr<spdlog::logger> logger;

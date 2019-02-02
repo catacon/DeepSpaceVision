@@ -1,4 +1,4 @@
-#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
 
 #IncludeRegexScan: ^.*$
 
@@ -292,115 +292,115 @@ vector
 utility
 -
 
-/home/aaron/FRC2019/DeepSpaceVision/CameraModel.h
+/home/pi/DeepSpaceVision/CameraModel.h
 opencv2/opencv.hpp
 -
 
-/home/aaron/FRC2019/DeepSpaceVision/DataSender.cpp
+/home/pi/DeepSpaceVision/DataSender.cpp
 json.hpp
 -
 DataSender.h
-/home/aaron/FRC2019/DeepSpaceVision/DataSender.h
+/home/pi/DeepSpaceVision/DataSender.h
 VisionData.hpp
-/home/aaron/FRC2019/DeepSpaceVision/VisionData.hpp
+/home/pi/DeepSpaceVision/VisionData.hpp
 Setup.h
-/home/aaron/FRC2019/DeepSpaceVision/Setup.h
+/home/pi/DeepSpaceVision/Setup.h
 
-/home/aaron/FRC2019/DeepSpaceVision/DataSender.h
+/home/pi/DeepSpaceVision/DataSender.h
 memory
 -
 spdlog/spdlog.h
-/home/aaron/FRC2019/DeepSpaceVision/spdlog/spdlog.h
+/home/pi/DeepSpaceVision/spdlog/spdlog.h
 zmq.hpp
 -
 
-/home/aaron/FRC2019/DeepSpaceVision/DeepSpaceTargetModel.h
+/home/pi/DeepSpaceVision/DeepSpaceTargetModel.h
 opencv2/opencv.hpp
 -
 TargetModel.h
-/home/aaron/FRC2019/DeepSpaceVision/TargetModel.h
+/home/pi/DeepSpaceVision/TargetModel.h
 
-/home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.cpp
+/home/pi/DeepSpaceVision/DeepSpaceVision.cpp
 thread
 -
 DeepSpaceVision.h
-/home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.h
+/home/pi/DeepSpaceVision/DeepSpaceVision.h
 VisionData.hpp
-/home/aaron/FRC2019/DeepSpaceVision/VisionData.hpp
+/home/pi/DeepSpaceVision/VisionData.hpp
 DeepSpaceTargetModel.h
-/home/aaron/FRC2019/DeepSpaceVision/DeepSpaceTargetModel.h
+/home/pi/DeepSpaceVision/DeepSpaceTargetModel.h
 CameraModel.h
-/home/aaron/FRC2019/DeepSpaceVision/CameraModel.h
+/home/pi/DeepSpaceVision/CameraModel.h
 Setup.h
-/home/aaron/FRC2019/DeepSpaceVision/Setup.h
+/home/pi/DeepSpaceVision/Setup.h
 
-/home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.h
+/home/pi/DeepSpaceVision/DeepSpaceVision.h
 memory
 -
 opencv2/opencv.hpp
 -
 spdlog/spdlog.h
-/home/aaron/FRC2019/DeepSpaceVision/spdlog/spdlog.h
+/home/pi/DeepSpaceVision/spdlog/spdlog.h
 Setup.h
-/home/aaron/FRC2019/DeepSpaceVision/Setup.h
+/home/pi/DeepSpaceVision/Setup.h
 TargetFinder.h
-/home/aaron/FRC2019/DeepSpaceVision/TargetFinder.h
+/home/pi/DeepSpaceVision/TargetFinder.h
 DataSender.h
-/home/aaron/FRC2019/DeepSpaceVision/DataSender.h
+/home/pi/DeepSpaceVision/DataSender.h
 
-/home/aaron/FRC2019/DeepSpaceVision/Setup.cpp
+/home/pi/DeepSpaceVision/Setup.cpp
 simpleini/SimpleIni.h
 -
 spdlog/spdlog.h
-/home/aaron/FRC2019/DeepSpaceVision/spdlog/spdlog.h
+/home/pi/DeepSpaceVision/spdlog/spdlog.h
 Setup.h
-/home/aaron/FRC2019/DeepSpaceVision/Setup.h
+/home/pi/DeepSpaceVision/Setup.h
 
-/home/aaron/FRC2019/DeepSpaceVision/Setup.h
+/home/pi/DeepSpaceVision/Setup.h
 string
 -
 
-/home/aaron/FRC2019/DeepSpaceVision/TargetFinder.cpp
+/home/pi/DeepSpaceVision/TargetFinder.cpp
 TargetFinder.h
-/home/aaron/FRC2019/DeepSpaceVision/TargetFinder.h
+/home/pi/DeepSpaceVision/TargetFinder.h
 CameraModel.h
-/home/aaron/FRC2019/DeepSpaceVision/CameraModel.h
+/home/pi/DeepSpaceVision/CameraModel.h
 TargetModel.h
-/home/aaron/FRC2019/DeepSpaceVision/TargetModel.h
+/home/pi/DeepSpaceVision/TargetModel.h
 Setup.h
-/home/aaron/FRC2019/DeepSpaceVision/Setup.h
+/home/pi/DeepSpaceVision/Setup.h
 VisionData.hpp
-/home/aaron/FRC2019/DeepSpaceVision/VisionData.hpp
+/home/pi/DeepSpaceVision/VisionData.hpp
 
-/home/aaron/FRC2019/DeepSpaceVision/TargetFinder.h
+/home/pi/DeepSpaceVision/TargetFinder.h
 memory
 -
 opencv2/opencv.hpp
 -
 spdlog/spdlog.h
-/home/aaron/FRC2019/DeepSpaceVision/spdlog/spdlog.h
+/home/pi/DeepSpaceVision/spdlog/spdlog.h
 TargetModel.h
-/home/aaron/FRC2019/DeepSpaceVision/TargetModel.h
+/home/pi/DeepSpaceVision/TargetModel.h
 CameraModel.h
-/home/aaron/FRC2019/DeepSpaceVision/CameraModel.h
+/home/pi/DeepSpaceVision/CameraModel.h
 VisionData.hpp
-/home/aaron/FRC2019/DeepSpaceVision/VisionData.hpp
+/home/pi/DeepSpaceVision/VisionData.hpp
 
-/home/aaron/FRC2019/DeepSpaceVision/TargetModel.h
+/home/pi/DeepSpaceVision/TargetModel.h
 vector
 -
 opencv2/opencv.hpp
 -
 
-/home/aaron/FRC2019/DeepSpaceVision/VisionData.hpp
+/home/pi/DeepSpaceVision/VisionData.hpp
 json.hpp
 -
 VisionStatus.hpp
-/home/aaron/FRC2019/DeepSpaceVision/VisionStatus.hpp
+/home/pi/DeepSpaceVision/VisionStatus.hpp
 
-/home/aaron/FRC2019/DeepSpaceVision/VisionStatus.hpp
+/home/pi/DeepSpaceVision/VisionStatus.hpp
 
-/home/aaron/FRC2019/DeepSpaceVision/main.cpp
+/home/pi/DeepSpaceVision/main.cpp
 memory
 -
 signal.h
@@ -408,11 +408,15 @@ signal.h
 opencv2/opencv.hpp
 -
 spdlog/spdlog.h
-/home/aaron/FRC2019/DeepSpaceVision/spdlog/spdlog.h
+/home/pi/DeepSpaceVision/spdlog/spdlog.h
+spdlog/sinks/ansicolor_sink.h
+/home/pi/DeepSpaceVision/spdlog/sinks/ansicolor_sink.h
+spdlog/sinks/basic_file_sink.h
+/home/pi/DeepSpaceVision/spdlog/sinks/basic_file_sink.h
 DeepSpaceVision.h
-/home/aaron/FRC2019/DeepSpaceVision/DeepSpaceVision.h
+/home/pi/DeepSpaceVision/DeepSpaceVision.h
 Setup.h
-/home/aaron/FRC2019/DeepSpaceVision/Setup.h
+/home/pi/DeepSpaceVision/Setup.h
 
 /usr/local/include/opencv4/opencv2/calib3d.hpp
 opencv2/core.hpp
@@ -729,44 +733,6 @@ opencv2/core/cvdef.h
 /usr/local/include/opencv4/opencv2/core/opencv2/core/cvdef.h
 assert.h
 -
-
-/usr/local/include/opencv4/opencv2/dnn.hpp
-opencv2/dnn/dnn.hpp
--
-
-/usr/local/include/opencv4/opencv2/dnn/dict.hpp
-opencv2/core.hpp
--
-map
--
-ostream
--
-opencv2/dnn/dnn.hpp
--
-
-/usr/local/include/opencv4/opencv2/dnn/dnn.hpp
-vector
--
-opencv2/core.hpp
--
-../dnn/version.hpp
-/usr/local/include/opencv4/opencv2/dnn/version.hpp
-opencv2/dnn/dict.hpp
--
-opencv2/dnn/layer.hpp
--
-opencv2/dnn/dnn.inl.hpp
--
-
-/usr/local/include/opencv4/opencv2/dnn/dnn.inl.hpp
-opencv2/dnn.hpp
--
-
-/usr/local/include/opencv4/opencv2/dnn/layer.hpp
-opencv2/dnn.hpp
--
-
-/usr/local/include/opencv4/opencv2/dnn/version.hpp
 
 /usr/local/include/opencv4/opencv2/features2d.hpp
 opencv2/opencv_modules.hpp

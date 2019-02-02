@@ -1,5 +1,5 @@
-/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles/rebuild_cache.dir
-/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles/edit_cache.dir
-/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles/package_source.dir
-/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles/DeepSpaceVision.dir
-/home/aaron/FRC2019/DeepSpaceVision/build/CMakeFiles/package.dir
+/home/pi/DeepSpaceVision/build/CMakeFiles/rebuild_cache.dir
+/home/pi/DeepSpaceVision/build/CMakeFiles/DeepSpaceVision.dir
+/home/pi/DeepSpaceVision/build/CMakeFiles/package.dir
+/home/pi/DeepSpaceVision/build/CMakeFiles/package_source.dir
+/home/pi/DeepSpaceVision/build/CMakeFiles/edit_cache.dir
