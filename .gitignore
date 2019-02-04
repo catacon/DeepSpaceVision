@@ -27,6 +27,13 @@
 *.sql
 *.sqlite
 
+# Images and video #
+######################
+*.png
+*.jpg
+*.avi
+*.mpg
+
 # OS generated files #
 ######################
 .DS_Store
@@ -50,8 +57,10 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+*.cmake
 
 
 # Project specific files #
 ##########################
 setup.ini
+.vscode
