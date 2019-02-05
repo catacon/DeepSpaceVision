@@ -8,10 +8,10 @@
 
 using namespace Lightning;
 
-DeepSpaceVision::DeepSpaceVision(std::shared_ptr<spdlog::logger> logger)
+DeepSpaceVision::DeepSpaceVision(std::shared_ptr<spdlog::logger> logger, std::shared_ptr<cv::VideoCapture> capture)
     : _logger(logger)
-    , _targetCapture(std::make_unique<cv::VideoCapture>(Setup::Camera::CameraId))
-    , _targetFinder(std::make_unique<TargetFinder>(logger, DeepSpaceTargetModel(), CameraModel()))
+    , _targetCapture(capture)
+    , _targetFinder(std::make_unique<TargetFinder>(logger, DeepSpaceTargetModel(), PS3EyeModel()))
     , _dataSender(std::make_unique<DataSender>(logger))
 {
     _runProcessing.store(false);

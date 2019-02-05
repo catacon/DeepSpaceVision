@@ -9,7 +9,8 @@ namespace Setup
 {
     namespace Camera
     {
-        int CameraId = 1;
+        int HatchCameraId = 0;
+        int CargoCameraId = 1;
         int Width = 640;
         int Height = 480;
     }
@@ -63,7 +64,8 @@ namespace Setup
         CSimpleIniA ini;
 
             // Camera
-            ini.SetLongValue("Camera", "CameraId", Camera::CameraId);
+            ini.SetLongValue("Camera", "HatchCameraId", Camera::HatchCameraId);
+            ini.SetLongValue("Camera", "CargoCameraId", Camera::CargoCameraId);
             ini.SetLongValue("Camera", "Width", Camera::Width);
             ini.SetLongValue("Camera", "Height", Camera::Height);
 
@@ -117,6 +119,8 @@ namespace Setup
         if (result == SI_Error::SI_OK)
         {
             // Camera
+            Camera::HatchCargoId = ini.GetLongValue("Camera", "HatchCameraId", Camera::HatchCameraId);
+            Camera::CargoCameraId = ini.GetLongValue("Camera", "CargoCameraId", Camera::CargoCameraId);
             Camera::CameraId = ini.GetLongValue("Camera", "CameraId", Camera::CameraId);
             Camera::Width = ini.GetLongValue("Camera", "Width", Camera::Width);
             Camera::Height = ini.GetLongValue("Camera", "Height", Camera::Height);

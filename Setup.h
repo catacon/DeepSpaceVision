@@ -15,8 +15,11 @@ namespace Setup
 
     namespace Camera
     {
-        // Default camera id
-        extern int CameraId;
+        // Default camera id for hatch side
+        extern int HatchCameraId;
+
+        // Default camera id for cargo side
+        extern int CargoCameraId;
 
         // Image width
         extern int Width;

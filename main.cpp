@@ -21,8 +21,9 @@ std::vector<spdlog::sink_ptr> sinks {
 
 std::shared_ptr<spdlog::logger> logger;
 
-// Vision Processor
-std::unique_ptr<Lightning::DeepSpaceVision> _visionProcessor;
+// Vision Processors
+std::unique_ptr<Lightning::DeepSpaceVision> _hatchSideProcessor;
+std::unique_ptr<Lightning::DeepSpaceVision> _cargoSideProcessor;
 
 int main(int, char**) {
 
@@ -35,23 +36,28 @@ int main(int, char**) {
     // Logger
     logger = std::make_shared<spdlog::logger>("DeepSpaceVision", sinks.begin(), sinks.end());
     logger->set_level(Lightning::Setup::Diagnostics::LogLevel);
-
-    // TODO Setup cameras with v4l2
-
     logger->debug("Starting DeepSpaceVision");
 
-    // Vision Processor
-    _visionProcessor = std::make_unique<Lightning::DeepSpaceVision>(logger);
+    // Vision Processors
+    _hatchSideProcessor = std::make_unique<Lightning::DeepSpaceVision>(logger);
+    _cargoSideProcessor = std::make_unique<Lightning::DeepSpaceVision>(logger);
 
-    if (!_visionProcessor->StartProcessing())
+    if (!_hatchSideProcessor->StartProcessing())
     {
-        logger->error("Failed to start vision processing"); // TODO error code
+        logger->error("Failed to start hatch vision processing");
     }
 
-    while (_visionProcessor->IsRunning())
+    if (!_cargoSideProcessor->StartProcessing())
+    {
+        logger->error("Failed to start cargo vision processing");
+    }
+
+    while (_hatchSideProcessor->IsRunning() || _cargoSideProcessor->IsRunning())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+
+    logger->debug("Stopping DeepSpaceVision");
 
     return 0;
 }
