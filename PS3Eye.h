@@ -6,6 +6,7 @@ namespace Lightning
 {
 class PS3EyeModel : public CameraModel
 {
+public:
     PS3EyeModel()
     {
         _cameraMatrix = cv::Mat(3, 3, CV_64FC1);

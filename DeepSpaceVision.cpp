@@ -3,7 +3,7 @@
 #include "DeepSpaceVision.h"
 #include "VisionData.hpp"
 #include "DeepSpaceTargetModel.h"
-#include "CameraModel.h"
+#include "PS3Eye.h"
 #include "Setup.h"
 
 using namespace Lightning;

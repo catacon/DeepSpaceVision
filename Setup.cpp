@@ -119,9 +119,8 @@ namespace Setup
         if (result == SI_Error::SI_OK)
         {
             // Camera
-            Camera::HatchCargoId = ini.GetLongValue("Camera", "HatchCameraId", Camera::HatchCameraId);
+            Camera::HatchCameraId = ini.GetLongValue("Camera", "HatchCameraId", Camera::HatchCameraId);
             Camera::CargoCameraId = ini.GetLongValue("Camera", "CargoCameraId", Camera::CargoCameraId);
-            Camera::CameraId = ini.GetLongValue("Camera", "CameraId", Camera::CameraId);
             Camera::Width = ini.GetLongValue("Camera", "Width", Camera::Width);
             Camera::Height = ini.GetLongValue("Camera", "Height", Camera::Height);
 

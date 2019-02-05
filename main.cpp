@@ -38,9 +38,13 @@ int main(int, char**) {
     logger->set_level(Lightning::Setup::Diagnostics::LogLevel);
     logger->debug("Starting DeepSpaceVision");
 
+    // Video sources
+    std::shared_ptr<cv::VideoCapture> _hatchCapture = std::make_shared<cv::VideoCapture>(0); // TODO
+    std::shared_ptr<cv::VideoCapture> _cargoCapture = std::make_shared<cv::VideoCapture>(1); // TODO
+
     // Vision Processors
-    _hatchSideProcessor = std::make_unique<Lightning::DeepSpaceVision>(logger);
-    _cargoSideProcessor = std::make_unique<Lightning::DeepSpaceVision>(logger);
+    _hatchSideProcessor = std::make_unique<Lightning::DeepSpaceVision>(logger, _hatchCapture);
+    _cargoSideProcessor = std::make_unique<Lightning::DeepSpaceVision>(logger, _cargoCapture);
 
     if (!_hatchSideProcessor->StartProcessing())
     {
@@ -65,5 +69,6 @@ int main(int, char**) {
 void sigint_handler(int signal)
 {
     logger->debug("sigint_handler: {0}", signal);
-    _visionProcessor->StopProcessing();
+    _hatchSideProcessor->StopProcessing();
+    _cargoSideProcessor->StopProcessing();
 }
