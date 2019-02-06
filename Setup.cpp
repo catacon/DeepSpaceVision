@@ -45,7 +45,7 @@ namespace Setup
         double MaxTargetSeparation = 160;
         int MaxCornerSubPixelIterations = 100;
         double CornerSubPixelThreshold = 0.1;
-        bool UseWorldCoordinates = false;
+        bool UseWorldCoordinates = true;
     }
 
     namespace HSVFilter
@@ -130,8 +130,8 @@ namespace Setup
             // Diagnostics
             Diagnostics::UseTestImage = ini.GetBoolValue("Diagnostics", "UseTestImage", Diagnostics::UseTestImage);            
             Diagnostics::TestImagePath = ini.GetValue("Diagnostics", "TestImagePath", Diagnostics::TestImagePath.c_str());
-            Diagnostics::UseTestImage = ini.GetBoolValue("Diagnostics", "UseTestVideo", Diagnostics::UseTestVideo);            
-            Diagnostics::TestImagePath = ini.GetValue("Diagnostics", "TestVideoPath", Diagnostics::TestVideoPath.c_str());
+            Diagnostics::UseTestVideo = ini.GetBoolValue("Diagnostics", "UseTestVideo", Diagnostics::UseTestVideo);            
+            Diagnostics::TestVideoPath = ini.GetValue("Diagnostics", "TestVideoPath", Diagnostics::TestVideoPath.c_str());
             Diagnostics::LogLevel = (spdlog::level::level_enum)ini.GetLongValue("Diagnostics", "LogLevel", Diagnostics::LogLevel);
             Diagnostics::DisplayDebugImages = ini.GetBoolValue("Diagnostics", "DisplayDebugImages", Diagnostics::DisplayDebugImages);     
             Diagnostics::RecordVideo = ini.GetBoolValue("Diagnostics", "RecordVideo", Diagnostics::RecordVideo);       

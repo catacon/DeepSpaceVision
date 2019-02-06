@@ -6,12 +6,12 @@
 
 using namespace Lightning;
 
-TargetFinder::TargetFinder(std::shared_ptr<spdlog::logger> logger, TargetModel targetModel, CameraModel cameraModel)
-    : _logger(logger)
-    , _targetModel(targetModel)
+TargetFinder::TargetFinder(std::vector<spdlog::sink_ptr> sinks, std::string name, TargetModel targetModel, CameraModel cameraModel)
+    : _targetModel(targetModel)
     , _cameraModel(cameraModel)
 {
-
+    _logger = std::make_shared<spdlog::logger>(name, sinks.begin(), sinks.end());
+    _logger->set_level(Lightning::Setup::Diagnostics::LogLevel);
 }
 
 void TargetFinder::ConvertImage(const cv::Mat& image, cv::Mat& hsv, cv::Mat& gray)
@@ -248,8 +248,8 @@ void TargetFinder::SortTargetSections(const std::vector<TargetSection>& sections
             double angleDiff = std::abs(sections[i].rect.angle - sections[j].rect.angle);
             double centerDiff = Distance(sections[i].center, sections[j].center);
 
-               // Adjust target separation threshold based on target size which correlates to distance
-            double targetSeparationThreshold = Setup::Processing::MaxTargetSeparation * (sections[i].area / 10000);
+            // Adjust target separation threshold based on target size which correlates to distance
+            double targetSeparationThreshold = sections[i].area * 0.05 + 77;    // TODO tune
 
             if (angleDiff > Setup::Processing::MinAngleDiff && angleDiff < Setup::Processing::MaxAngleDiff && centerDiff < targetSeparationThreshold)
             {
@@ -393,15 +393,13 @@ double TargetFinder::Distance(const cv::Point2d& pt1, const cv::Point2d& pt2)
     return std::sqrt(std::pow(dX, 2) + std::pow(dY, 2));
 }
 
-int TargetFinder::ShowDebugImages()
+void TargetFinder::ShowDebugImages()
 {
     for (auto& image : _debugImages)
     {
         cv::namedWindow(image.first, cv::WINDOW_KEEPRATIO);
         cv::imshow(image.first, image.second);
     }
-
-    return cv::waitKey(1);
 }
 
 cv::Vec3d TargetFinder::EulerAnglesFromRotationMaxtrix(const cv::Mat& R)

@@ -45,11 +45,11 @@ class TargetFinder
 
 public:
 
-    TargetFinder(std::shared_ptr<spdlog::logger>, TargetModel, CameraModel);
+    TargetFinder(std::vector<spdlog::sink_ptr>, std::string, TargetModel, CameraModel);
 
     bool Process(cv::Mat&, std::vector<VisionData>&);
 
-    int ShowDebugImages();
+    void ShowDebugImages();
 
 private:
 

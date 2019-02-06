@@ -1,29 +1,24 @@
 #pragma once
 
 #include <memory>
-
-#include "spdlog/spdlog.h"
 #include <zmq.hpp>
+
+#include "VisionData.hpp"
 
 namespace Lightning
 {
-
-class VisionData;
 
 class DataSender
 {
 
 public: 
 
-    DataSender(std::shared_ptr<spdlog::logger>);
-
+    DataSender();
     ~DataSender();
 
-    bool Send(const std::vector<VisionData>&);
+    bool Send(const std::vector<VisionMessage>&);
 
 private:
-    std::shared_ptr<spdlog::logger> _logger;
-
     zmq::context_t _context;
     zmq::socket_t _socket;
     

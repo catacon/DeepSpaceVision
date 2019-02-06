@@ -10,20 +10,18 @@
 #include "Setup.h"
 
 // Sigint Handler
-std::atomic<bool> run(true);
 void sigint_handler(int signal);
 
-// Logger
+// Vision processor
+std::unique_ptr<Lightning::DeepSpaceVision> vision;
+
+// Logger - create sinks here so they can be shared with main and processors
 std::vector<spdlog::sink_ptr> sinks {
     std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>(),
     std::make_shared<spdlog::sinks::basic_file_sink_mt>("DeepSpaceVision.log")
 };
 
 std::shared_ptr<spdlog::logger> logger;
-
-// Vision Processors
-std::unique_ptr<Lightning::DeepSpaceVision> _hatchSideProcessor;
-std::unique_ptr<Lightning::DeepSpaceVision> _cargoSideProcessor;
 
 int main(int, char**) {
 
@@ -34,34 +32,24 @@ int main(int, char**) {
     Lightning::Setup::LoadSetup();
 
     // Logger
-    logger = std::make_shared<spdlog::logger>("DeepSpaceVision", sinks.begin(), sinks.end());
+    logger = std::make_shared<spdlog::logger>("Main", sinks.begin(), sinks.end());
     logger->set_level(Lightning::Setup::Diagnostics::LogLevel);
-    logger->debug("Starting DeepSpaceVision");
-
-    // Video sources
-    std::shared_ptr<cv::VideoCapture> _hatchCapture = std::make_shared<cv::VideoCapture>(0); // TODO
-    std::shared_ptr<cv::VideoCapture> _cargoCapture = std::make_shared<cv::VideoCapture>(1); // TODO
 
     // Vision Processors
-    _hatchSideProcessor = std::make_unique<Lightning::DeepSpaceVision>(logger, _hatchCapture);
-    _cargoSideProcessor = std::make_unique<Lightning::DeepSpaceVision>(logger, _cargoCapture);
-
-    if (!_hatchSideProcessor->StartProcessing())
+    vision = std::make_unique<Lightning::DeepSpaceVision>(sinks);
+    
+    logger->debug("Starting DeepSpaceVision");
+    if (!vision->StartProcessing())
     {
-        logger->error("Failed to start hatch vision processing");
+        logger->error("Failed to start DeepSpaceVision");
     }
 
-    if (!_cargoSideProcessor->StartProcessing())
-    {
-        logger->error("Failed to start cargo vision processing");
-    }
-
-    while (_hatchSideProcessor->IsRunning() || _cargoSideProcessor->IsRunning())
+    while (vision->IsProcessRunning())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    logger->debug("Stopping DeepSpaceVision");
+    logger->debug("DeepSpaceVision has stopped.");
 
     return 0;
 }
@@ -69,6 +57,5 @@ int main(int, char**) {
 void sigint_handler(int signal)
 {
     logger->debug("sigint_handler: {0}", signal);
-    _hatchSideProcessor->StopProcessing();
-    _cargoSideProcessor->StopProcessing();
+    vision->StopProcessing();
 }

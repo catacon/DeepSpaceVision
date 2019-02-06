@@ -11,9 +11,9 @@ class TargetModel
 {
 
 public:
-    std::vector<cv::Point3d> GetKeyPoints() const { return _keyPoints; }
+    virtual std::vector<cv::Point3d> GetKeyPoints() const { return _keyPoints; }
 
-    std::vector<cv::Point3d> GetTargetAxes() const { return _targetAxes; }
+    virtual std::vector<cv::Point3d> GetTargetAxes() const { return _targetAxes; }
 
 protected:
 

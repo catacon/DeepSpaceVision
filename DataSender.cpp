@@ -6,9 +6,8 @@
 
 using namespace Lightning;
 
-DataSender::DataSender(std::shared_ptr<spdlog::logger> logger)
-    : _logger(logger)
-    , _context(1)
+DataSender::DataSender()
+    : _context(1)
     , _socket(_context, ZMQ_PUB)
 {
     std::string s = std::string("tcp://*:" + std::to_string(Setup::Network::DataPort));
@@ -18,19 +17,13 @@ DataSender::DataSender(std::shared_ptr<spdlog::logger> logger)
 
 DataSender::~DataSender()
 {
-    _socket.close();
-    zmq_ctx_destroy(&_context);
+
 }
 
-bool DataSender::Send(const std::vector<VisionData>& d)
-{
-    std::vector<VisionMessage> visionMessages
-    {
-        VisionMessage{ 0, d}
-    };
-    
+bool DataSender::Send(const std::vector<VisionMessage>& messages)
+{   
 
-    nlohmann::json j = visionMessages;
+    nlohmann::json j = messages;
     std::string s = j.dump();
 
     zmq::message_t message(s.length());

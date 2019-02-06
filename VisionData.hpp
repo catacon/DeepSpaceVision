@@ -11,32 +11,6 @@ class VisionData
 {
 public:
 
-/*
-    VisionData()
-        : status(VisionStatus::NotRunning)
-        , x(0.0)
-        , y(0.0)
-        , z(0.0)
-        , roll(0.0)
-        , pitch(0.0)
-        , yaw(0.0)
-    {
-
-    }
-
-    VisionData(VisionStatus _status, double _x, double _y, double _z, double _roll, double _pitch, double _yaw)
-        : status(_status)
-        , x(_x)
-        , y(_y)
-        , z(_z)
-        , roll(_roll)
-        , pitch(_pitch)
-        , yaw(_yaw)
-    {
-
-    }
-    */
-
    // TODO define id better
 
     VisionStatus status;

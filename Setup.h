@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "spdlog/spdlog.h"
+
 namespace Lightning
 {
 
