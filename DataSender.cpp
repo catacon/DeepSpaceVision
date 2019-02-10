@@ -11,7 +11,6 @@ DataSender::DataSender()
     , _socket(_context, ZMQ_PUB)
 {
     std::string s = std::string("tcp://*:" + std::to_string(Setup::Network::DataPort));
-    //TODO
     _socket.bind(s);
 }
 

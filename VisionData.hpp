@@ -14,7 +14,6 @@ public:
    // TODO define id better
 
     VisionStatus status;
-    int cameraId;
     int targetId;
     double x;
     double y;

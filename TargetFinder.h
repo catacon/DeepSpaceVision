@@ -8,37 +8,10 @@
 #include "TargetModel.h"
 #include "CameraModel.h"
 #include "VisionData.hpp"
+#include "Target.h"
 
 namespace Lightning
 {
-
-class VisionData;
-
-// TODO move to other file
-typedef std::pair<cv::Point2d, cv::Point2d> TargetCorner;
-
-// TODO new file
-class TargetSection
-{
-public:
-    std::vector<cv::Point2f> corners;
-    cv::RotatedRect rect;
-    double score; 
-    cv::Point2f center;
-    double area;
-};
-
-class Target
-{
-public:
-    std::vector<TargetSection> sections;
-    cv::Point2f center;
-    VisionData data;
-    cv::Mat rvec;
-    cv::Mat tvec;
-
-    void GetInverseTransforms(cv::Mat&, cv::Mat&) const;
-};
 
 class TargetFinder
 {
@@ -71,6 +44,8 @@ private:
 
     double Distance(const cv::Point2d&, const cv::Point2d&);
 
+    bool ClockwiseSort(const cv::Point2f&, const cv::Point2f&, const cv::Point2f&);
+
     cv::Vec3d EulerAnglesFromRotationMaxtrix(const cv::Mat&);
 
     void DrawDebugImage(cv::Mat&, const std::vector<Target>&);
@@ -81,6 +56,8 @@ private:
     CameraModel _cameraModel;
 
     std::vector<std::pair<std::string, cv::Mat>> _debugImages;
+
+    std::string _name;
 };
 
 }

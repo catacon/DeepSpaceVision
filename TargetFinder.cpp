@@ -9,6 +9,7 @@ using namespace Lightning;
 TargetFinder::TargetFinder(std::vector<spdlog::sink_ptr> sinks, std::string name, TargetModel targetModel, CameraModel cameraModel)
     : _targetModel(targetModel)
     , _cameraModel(cameraModel)
+    , _name(name)
 {
     _logger = std::make_shared<spdlog::logger>(name, sinks.begin(), sinks.end());
     _logger->set_level(Lightning::Setup::Diagnostics::LogLevel);
@@ -135,7 +136,6 @@ bool TargetFinder::Process(cv::Mat& image, std::vector<VisionData>& data)
     // Add targets to data packet - TODO this could be cleaner - redo VisionPacket?
     for (int i = 0; i < (int)targets.size(); ++i)
     {
-        targets[i].data.cameraId = 0;   // TODO
         targets[i].data.targetId = i;
 
         data.push_back(targets[i].data);
@@ -170,6 +170,10 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
             // Get bounding box and angle
             auto rect = cv::minAreaRect(contours[i]);
 
+            // Save corner points
+            std::vector<cv::Point2f> points(4);
+            rect.points(points.data());
+
             if (rect.size.width < rect.size.height)
             {
                 rect.angle += 180;
@@ -179,59 +183,9 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
                 rect.angle += 90;
             }
 
-            cv::Mat contourImage = cv::Mat::zeros(size, CV_8UC1);
-        
-            cv::drawContours( contourImage, contours, i, cv::Scalar(255), cv::FILLED, cv::LINE_AA);
+            TargetSection section { points, rect, shapeFactor, rect.center, area };
 
-            //cv::GaussianBlur( contourImage, contourImage, cv::Size(3,3), 2);
-
-            // Get corners
-
-            std::vector<cv::KeyPoint> keyPoints;
-            cv::FAST(contourImage, keyPoints, Setup::Processing::FastThreshold, false, cv::FastFeatureDetector::DetectorType::TYPE_9_16);
-
-            // Combine close corner points - TODO with non-max suppression on is this necessary?
-            std::vector<int> labels;
-            int numLabels = cv::partition(keyPoints, labels, [this](cv::KeyPoint p1, cv::KeyPoint p2){ return (Distance(p1.pt, p2.pt) < Setup::Processing::CornerDistanceThreshold); });
-
-            if (numLabels == 4) // TODO define number of corners?
-            {
-                std::vector<cv::Point2f> combinedPoints(numLabels);
-
-                cv::Point2f center(0, 0);
-
-                for (size_t i = 0; i < combinedPoints.size(); ++i)
-                {
-                    cv::Point2f newPoint;
-                    int count(0);
-
-                    for (size_t j = 0; j < keyPoints.size(); ++j)
-                    {
-                        if (labels[j] == i)
-                        {
-                            newPoint += keyPoints[j].pt;
-                            ++count;
-                        }
-                    }
-
-                    if (count <= 0)
-                    {
-                        break;
-                    }
-
-                    newPoint /= count;
-
-                    combinedPoints[i] = newPoint;
-
-                    center += newPoint;
-                }
-
-                center /= (int)combinedPoints.size();
-
-                TargetSection section { combinedPoints, rect, shapeFactor, center, area };
-
-                sections.push_back(section);
-            }
+            sections.push_back(section);
         }
     }
 }
@@ -260,7 +214,6 @@ void TargetFinder::SortTargetSections(const std::vector<TargetSection>& sections
 
                 std::sort(newTarget.sections.begin(), newTarget.sections.end(), [](TargetSection& s1, TargetSection& s2){ return (s1.center.x < s2.center.x);});
 
-
                 targets.push_back(newTarget);
 
                 i = j;
@@ -286,7 +239,7 @@ void TargetFinder::RefineTargetCorners(std::vector<Target>& targets, const cv::M
 
             try
             {
-                cv::cornerSubPix(image, section.corners, cv::Size(5,5), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::MAX_ITER | cv::TermCriteria::EPS, Setup::Processing::MaxCornerSubPixelIterations, Setup::Processing::CornerSubPixelThreshold));
+                cv::cornerSubPix(image, section.corners, cv::Size(10,10), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::MAX_ITER | cv::TermCriteria::EPS, Setup::Processing::MaxCornerSubPixelIterations, Setup::Processing::CornerSubPixelThreshold));
             }
             catch (cv::Exception ex)
             {
@@ -295,7 +248,9 @@ void TargetFinder::RefineTargetCorners(std::vector<Target>& targets, const cv::M
             }
             target.center += section.center;
 
-            std::sort(section.corners.begin(), section.corners.end(), [](cv::Point2f p1, cv::Point2f p2){ return p1.x < p1.x && p1.y > p2.y;});
+            //std::sort(section.corners.begin(), section.corners.end(), [this, c = section.center](cv::Point2f p1, cv::Point2f p2){ return !ClockwiseSort(p1, p2, c); });
+
+            
         }
 
         target.center /= (int)target.sections.size();
@@ -310,6 +265,7 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
     for (auto& target : targets)
     {
         // Set image points
+        /*
         std::vector<cv::Point2d> imagePoints
         {
             target.center,
@@ -321,6 +277,21 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
             target.sections[1].corners[2],
             target.sections[0].corners[3],
             target.sections[1].corners[3]
+        };
+        */
+
+        // Set image points
+        std::vector<cv::Point2d> imagePoints
+        {
+            target.center,
+            target.sections[0].corners[2],
+            target.sections[1].corners[2],
+            target.sections[0].corners[3],
+            target.sections[1].corners[1],
+            target.sections[0].corners[1],
+            target.sections[1].corners[3],
+            target.sections[0].corners[0],
+            target.sections[1].corners[0]
         };
 
         cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);     
@@ -397,8 +368,10 @@ void TargetFinder::ShowDebugImages()
 {
     for (auto& image : _debugImages)
     {
-        cv::namedWindow(image.first, cv::WINDOW_KEEPRATIO);
-        cv::imshow(image.first, image.second);
+        auto windowName = fmt::format("{0} {1}",_name, image.first);
+
+        cv::namedWindow(windowName, cv::WINDOW_KEEPRATIO);
+        cv::imshow(windowName, image.second);
     }
 }
 
@@ -439,16 +412,16 @@ void TargetFinder::DrawDebugImage(cv::Mat& image, const std::vector<Target>& tar
         }
         
         std::vector<cv::Point2d> projectedPoints;
-        cv::projectPoints(_targetModel.GetKeyPoints(), rvec, tvec, _cameraModel.GetCameraMatrix(), _cameraModel.GetDistanceCoefficients(), projectedPoints);
+        cv::projectPoints(_targetModel.GetKeyPoints(), rvec, tvec, _cameraModel.GetCameraMatrix(), _cameraModel.GetDistanceCoefficients(), projectedPoints);       
 
         for (auto& pt : projectedPoints)
         {
             cv::circle(image, pt, 3, color, 1, cv::LINE_AA);
-        }         
+        }
 
         // Show target section bounding boxes
         for (auto section : targets[target].sections)
-        {
+        { 
             // TODO DO THIS BETTER AND SOMEWHERE ELSE
             if (section.rect.size.width < section.rect.size.height)
             {
@@ -490,18 +463,99 @@ void TargetFinder::DrawDebugImage(cv::Mat& image, const std::vector<Target>& tar
     }
 }
 
-void Target::GetInverseTransforms(cv::Mat& rvec, cv::Mat& tvec) const
+/* Old corner detection using FAST - still works, but minarearect version seems to be more robust
+
+void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::Point>>& contours, std::vector<TargetSection>& sections, const cv::Size size)
 {
-    // Get rotation matrix from vector
-    cv::Mat R;
-    cv::Rodrigues(rvec, R);
+    sections.clear();
 
-    // Transpose R to get inverse
-    R = R.t();        
+    // Evaluate each contour to see if it is a target section
+    for (int i = 0; i < (int)contours.size(); ++i)
+    {       
+        double area = cv::contourArea(contours[i], false);  
+        double perimeter = cv::arcLength(contours[i], true);
 
-    // Inverse of tvec      
-    tvec = -R * tvec;
+        double shapeFactor = (4 * CV_PI * area) / std::pow(perimeter, 2);
 
-    // Convert rotation vector back to matrix      
-    cv::Rodrigues(R, rvec);
+        if (shapeFactor > Setup::Processing::ShapeFactorMin && shapeFactor < Setup::Processing::ShapeFactorMax)
+        {
+            // Get bounding box and angle
+            auto rect = cv::minAreaRect(contours[i]);
+
+            std::vector<cv::Point2f> points(4);
+            rect.points(points.data());
+
+            if (rect.size.width < rect.size.height)
+            {
+                rect.angle += 180;
+            }
+            else
+            {
+                rect.angle += 90;
+            }
+
+            cv::Mat contourImage = cv::Mat::zeros(size, CV_8UC1);
+        
+            cv::drawContours( contourImage, contours, i, cv::Scalar(255), cv::FILLED, cv::LINE_AA);
+
+            //cv::GaussianBlur( contourImage, contourImage, cv::Size(3,3), 2);
+
+            // Adjust FAST algorithm parameters based on contour size which correlates to target distance
+            cv::FastFeatureDetector::DetectorType detectorType = cv::FastFeatureDetector::DetectorType::TYPE_9_16;
+
+            if (area < 200)
+            {
+                detectorType = cv::FastFeatureDetector::DetectorType::TYPE_7_12;
+            }
+
+            // Get corners
+
+            std::vector<cv::KeyPoint> keyPoints;
+            cv::FAST(contourImage, keyPoints, Setup::Processing::FastThreshold, false, detectorType);
+
+            // Combine close corner points - this seems to work better than non-max supression
+            std::vector<int> labels;
+            int numLabels = cv::partition(keyPoints, labels, [this](cv::KeyPoint p1, cv::KeyPoint p2){ return (Distance(p1.pt, p2.pt) < Setup::Processing::CornerDistanceThreshold); });
+
+            if (numLabels == 4) // TODO define number of corners?
+            {
+                std::vector<cv::Point2f> combinedPoints(numLabels);
+
+                cv::Point2f center(0, 0);
+
+                for (size_t i = 0; i < combinedPoints.size(); ++i)
+                {
+                    cv::Point2f newPoint;
+                    int count(0);
+
+                    for (size_t j = 0; j < keyPoints.size(); ++j)
+                    {
+                        if (labels[j] == i)
+                        {
+                            newPoint += keyPoints[j].pt;
+                            ++count;
+                        }
+                    }
+
+                    if (count <= 0)
+                    {
+                        break;
+                    }
+
+                    newPoint /= count;
+
+                    combinedPoints[i] = newPoint;
+
+                    center += newPoint;
+                }
+
+                center /= (int)combinedPoints.size();
+
+                TargetSection section { combinedPoints, rect, shapeFactor, center, area };
+
+                sections.push_back(section);
+            }
+        }
+    }
 }
+*/

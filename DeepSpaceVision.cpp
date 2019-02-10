@@ -49,7 +49,7 @@ DeepSpaceVision::DeepSpaceVision(std::vector<spdlog::sink_ptr> sinks)
             _logger->info("Cargo capture set to video: {0}", Setup::Diagnostics::TestVideoPath);
 
         }
-        if (Setup::Diagnostics::UseTestImage)
+        else if (Setup::Diagnostics::UseTestImage)
         {
             _cargoCapture = std::make_shared<cv::VideoCapture>(Setup::Diagnostics::TestImagePath);
             _logger->info("Cargo capture set to image(s): {0}", Setup::Diagnostics::TestImagePath);

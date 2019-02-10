@@ -34,7 +34,7 @@ namespace Setup
 
     namespace Processing
     {
-        int ContourSizeThreshold = 10;
+        int ContourSizeThreshold = 25;
         double ContourApproximationAccuracy = 2.5;
         double ShapeFactorMin = 0.4;
         double ShapeFactorMax = 0.8;
