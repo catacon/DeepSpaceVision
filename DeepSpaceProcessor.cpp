@@ -9,7 +9,7 @@ using namespace Lightning;
 
 DeepSpaceProcessor::DeepSpaceProcessor(std::vector<spdlog::sink_ptr> sinks, std::string name, std::shared_ptr<cv::VideoCapture> capture)
     : _capture(capture)
-    , _targetFinder(std::make_unique<TargetFinder>(sinks, name, DeepSpaceTargetModel(), PS3EyeModel()))
+    , _targetFinder(std::make_unique<TargetFinder>(sinks, name, std::make_unique<DeepSpaceTargetModel>(), std::make_unique<PS3EyeModel>()))
 {
     _logger = std::make_shared<spdlog::logger>(name, sinks.begin(), sinks.end());
     _logger->set_level(Lightning::Setup::Diagnostics::LogLevel);

@@ -61,6 +61,9 @@ namespace Setup
 
         // Read setup file during execution to adjust program behavior in real time
         extern bool ReadSetupFile;
+
+        // Wait time for displaying images - 0 will pause the display until a key is pressed
+        extern int WaitKeyDelay;
     }
 
     namespace Processing

@@ -24,7 +24,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/include)
 
-add_executable(DeepSpaceVision main.cpp Setup.cpp DeepSpaceVision.cpp DeepSpaceProcessor.cpp Target.cpp TargetFinder.cpp DataSender.cpp)
+add_executable(DeepSpaceVision main.cpp Setup.cpp DeepSpaceTargetModel.cpp DeepSpaceVision.cpp DeepSpaceProcessor.cpp Target.cpp TargetFinder.cpp DataSender.cpp)
 
 target_link_libraries(DeepSpaceVision ${OpenCV_LIBS} pthread zmq)
 

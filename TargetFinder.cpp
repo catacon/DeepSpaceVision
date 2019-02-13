@@ -6,9 +6,9 @@
 
 using namespace Lightning;
 
-TargetFinder::TargetFinder(std::vector<spdlog::sink_ptr> sinks, std::string name, TargetModel targetModel, CameraModel cameraModel)
-    : _targetModel(targetModel)
-    , _cameraModel(cameraModel)
+TargetFinder::TargetFinder(std::vector<spdlog::sink_ptr> sinks, std::string name, std::unique_ptr<TargetModel> targetModel, std::unique_ptr<CameraModel> cameraModel)
+    : _targetModel(std::move(targetModel))
+    , _cameraModel(std::move(cameraModel))
     , _name(name)
 {
     _logger = std::make_shared<spdlog::logger>(name, sinks.begin(), sinks.end());
@@ -128,7 +128,7 @@ bool TargetFinder::Process(cv::Mat& image, std::vector<VisionData>& data)
     RefineTargetCorners(targets, grayImage);
 
     // Find the camera to target tranform
-    FindTargetTransforms(targets, _targetModel, _cameraModel, cv::Size(image.cols, image.rows));
+    FindTargetTransforms(targets, cv::Size(image.cols, image.rows));
 
     // Sort targets by horizontal position in image
     std::sort(targets.begin(), targets.end(), [](Target t1, Target t2){ return (t1.data.imageX < t2.data.imageX); });
@@ -196,6 +196,7 @@ void TargetFinder::SortTargetSections(const std::vector<TargetSection>& sections
 
     for (int i = 0; i < (int)sections.size(); ++i)
     {
+        bool matchFound = false;
         for (int j = i + 1; j < (int)sections.size(); ++j)
         {
             // TODO this needs work
@@ -217,8 +218,16 @@ void TargetFinder::SortTargetSections(const std::vector<TargetSection>& sections
                 targets.push_back(newTarget);
 
                 i = j;
+                matchFound = true;
                 break;
             }
+        }
+
+        if (!matchFound)
+        {
+            Target newTarget;
+            newTarget.sections.push_back(sections[i]);
+            targets.push_back(newTarget);
         }
     }
 }
@@ -257,10 +266,10 @@ void TargetFinder::RefineTargetCorners(std::vector<Target>& targets, const cv::M
     }
 }
 
-void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const TargetModel& targetModel, const CameraModel& cameraModel, const cv::Size& imageSize)
+void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const cv::Size& imageSize)
 {
     // Get model key points
-    auto keyPoints = targetModel.GetKeyPoints();
+    std::vector<cv::Point3d> keyPoints;
 
     for (auto& target : targets)
     {
@@ -281,18 +290,61 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         */
 
         // Set image points
-        std::vector<cv::Point2d> imagePoints
+        std::vector<cv::Point2d> imagePoints;
+
+        if (target.sections.size() == 2)
         {
-            target.center,
-            target.sections[0].corners[2],
-            target.sections[1].corners[2],
-            target.sections[0].corners[3],
-            target.sections[1].corners[1],
-            target.sections[0].corners[1],
-            target.sections[1].corners[3],
-            target.sections[0].corners[0],
-            target.sections[1].corners[0]
-        };
+            keyPoints = _targetModel->GetKeyPoints();
+
+            imagePoints = std::vector<cv::Point2d>
+            {
+                target.center,
+                target.sections[0].corners[2],
+                target.sections[1].corners[2],
+                target.sections[0].corners[3],
+                target.sections[1].corners[1],
+                target.sections[0].corners[1],
+                target.sections[1].corners[3],
+                target.sections[0].corners[0],
+                target.sections[1].corners[0]
+            };
+        }
+        else if (target.sections.size() == 1)
+        {
+            if (target.sections[0].rect.angle < 90)
+            {
+                keyPoints = _targetModel->GetSubTargetKeyPoints(0);
+
+                imagePoints = std::vector<cv::Point2d>
+                {
+                    target.center,
+                    target.sections[0].corners[2],
+                    target.sections[0].corners[3],
+                    target.sections[0].corners[1],
+                    target.sections[0].corners[0]
+                };
+            }
+            else
+            {
+                keyPoints = _targetModel->GetSubTargetKeyPoints(1);                
+
+                imagePoints = std::vector<cv::Point2d>
+                {
+                    target.center,
+                    target.sections[0].corners[2],
+                    target.sections[0].corners[1],
+                    target.sections[0].corners[3],
+                    target.sections[0].corners[0]
+                };
+            }
+            
+        }
+        else
+        {
+            _logger->error("Incorrect number of target sections: {0}", target.sections.size());
+            continue;
+        }
+        
 
         cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);     
         cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
@@ -304,7 +356,7 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         }
 
         // Find transform
-        bool solved = cv::solvePnP(keyPoints, imagePoints, cameraModel.GetCameraMatrix(), cameraModel.GetDistanceCoefficients(), rvec, tvec, false, cv::SOLVEPNP_ITERATIVE);
+        bool solved = cv::solvePnP(keyPoints, imagePoints, _cameraModel->GetCameraMatrix(), _cameraModel->GetDistanceCoefficients(), rvec, tvec, false, cv::SOLVEPNP_ITERATIVE);
 
         if (!solved)
         {
@@ -341,10 +393,26 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const Targ
         euler[1] *= (180/CV_PI);
         euler[2] *= (180/CV_PI);
 
+        cv::Point3d centerOffset(keyPoints[0].x, keyPoints[0].y, keyPoints[0].z);
+
+        // Double offset when using a half target TODO
+        if (target.sections.size() == 1)
+        { 
+            if (target.sections[0].rect.angle < 90)
+            {
+                centerOffset.x *= 2;
+            }
+            else
+            {
+                centerOffset.x /= 2;
+            }
+            
+        }
+
         target.data.status = VisionStatus::TargetFound;
-        target.data.x = tvec.at<double>(0,0);
-        target.data.y = tvec.at<double>(1,0);
-        target.data.z = tvec.at<double>(2,0);
+        target.data.x = tvec.at<double>(0,0) - centerOffset.x;
+        target.data.y = tvec.at<double>(1,0) - centerOffset.y;
+        target.data.z = tvec.at<double>(2,0) - centerOffset.z;
         target.data.pitch = euler[0];
         target.data.yaw = euler[1];
         target.data.roll = euler[2];
@@ -412,7 +480,7 @@ void TargetFinder::DrawDebugImage(cv::Mat& image, const std::vector<Target>& tar
         }
         
         std::vector<cv::Point2d> projectedPoints;
-        cv::projectPoints(_targetModel.GetKeyPoints(), rvec, tvec, _cameraModel.GetCameraMatrix(), _cameraModel.GetDistanceCoefficients(), projectedPoints);       
+        cv::projectPoints(_targetModel->GetKeyPoints(), rvec, tvec, _cameraModel->GetCameraMatrix(), _cameraModel->GetDistanceCoefficients(), projectedPoints);       
 
         for (auto& pt : projectedPoints)
         {
@@ -437,7 +505,7 @@ void TargetFinder::DrawDebugImage(cv::Mat& image, const std::vector<Target>& tar
 
             for( int j = 0; j < 4; j++ )
             {
-                cv::line( image, vertices[j], vertices[(j+1)%4], color, 1, cv::LINE_AA );
+                //cv::line( image, vertices[j], vertices[(j+1)%4], color, 1, cv::LINE_AA );
             }
         }
 

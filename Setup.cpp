@@ -30,6 +30,7 @@ namespace Setup
         bool DisplayDebugImages = false;
         bool RecordVideo = false;
         bool ReadSetupFile = false;
+        int WaitKeyDelay = 10;
     }
 
     namespace Processing
@@ -80,7 +81,8 @@ namespace Setup
             ini.SetLongValue("Diagnostics", "LogLevel", (int)Diagnostics::LogLevel);
             ini.SetBoolValue("Diagnostics", "DisplayDebugImages", Diagnostics::DisplayDebugImages);     
             ini.SetBoolValue("Diagnostics", "RecordVideo", Diagnostics::RecordVideo);       
-            ini.SetBoolValue("Diagnostics", "ReadSetupFile", Diagnostics::ReadSetupFile);      
+            ini.SetBoolValue("Diagnostics", "ReadSetupFile", Diagnostics::ReadSetupFile);   
+            ini.SetLongValue("Diagnostics", "WaitKeyDelay", Diagnostics::WaitKeyDelay);   
 
             // Processing
             ini.SetLongValue("Processing", "ContourSizeThreshold", Processing::ContourSizeThreshold);
@@ -136,6 +138,8 @@ namespace Setup
             Diagnostics::DisplayDebugImages = ini.GetBoolValue("Diagnostics", "DisplayDebugImages", Diagnostics::DisplayDebugImages);     
             Diagnostics::RecordVideo = ini.GetBoolValue("Diagnostics", "RecordVideo", Diagnostics::RecordVideo);       
             Diagnostics::ReadSetupFile = ini.GetBoolValue("Diagnostics", "ReadSetupFile", Diagnostics::ReadSetupFile);      
+            Diagnostics::WaitKeyDelay = ini.GetLongValue("Diagnostics", "WaitKeyDelay", Diagnostics::WaitKeyDelay);   
+
 
             // Processing
             Processing::ContourSizeThreshold = ini.GetLongValue("Processing", "ContourSizeThreshold", Processing::ContourSizeThreshold);

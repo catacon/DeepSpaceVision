@@ -18,7 +18,7 @@ class TargetFinder
 
 public:
 
-    TargetFinder(std::vector<spdlog::sink_ptr>, std::string, TargetModel, CameraModel);
+    TargetFinder(std::vector<spdlog::sink_ptr>, std::string, std::unique_ptr<TargetModel>, std::unique_ptr<CameraModel>);
 
     bool Process(cv::Mat&, std::vector<VisionData>&);
 
@@ -40,7 +40,7 @@ private:
 
     void RefineTargetCorners(std::vector<Target>&, const cv::Mat&);
 
-    void FindTargetTransforms(std::vector<Target>&, const TargetModel&, const CameraModel&, const cv::Size&);
+    void FindTargetTransforms(std::vector<Target>&, const cv::Size&);
 
     double Distance(const cv::Point2d&, const cv::Point2d&);
 
@@ -52,8 +52,8 @@ private:
 
     std::shared_ptr<spdlog::logger> _logger;
 
-    TargetModel _targetModel;
-    CameraModel _cameraModel;
+    std::unique_ptr<TargetModel> _targetModel;
+    std::unique_ptr<CameraModel> _cameraModel;
 
     std::vector<std::pair<std::string, cv::Mat>> _debugImages;
 

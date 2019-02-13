@@ -162,7 +162,7 @@ void DeepSpaceVision::Process()
         // Pack results
         std::vector<VisionMessage> messages
         {
-            VisionMessage { Setup::Camera::HatchCameraId, hatchData },
+            VisionMessage { 0, hatchData },
             VisionMessage { Setup::Camera::CargoCameraId, cargoData }
         };
 
@@ -182,7 +182,7 @@ void DeepSpaceVision::Process()
                 _cargoProcessor->ShowDebugImages();
             }
 
-            int key = cv::waitKey(10);   // TODO check return to exit processing
+            int key = cv::waitKey(Setup::Diagnostics::WaitKeyDelay);
 
             if (key == 27)
             {
