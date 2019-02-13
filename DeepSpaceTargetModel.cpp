@@ -33,7 +33,6 @@ std::vector<cv::Point3d> DeepSpaceTargetModel::GetSubTargetKeyPoints(int subTarg
     if (subTarget == 0)
     {
         keyPoints = std::vector<cv::Point3d> {
-            {59.569, 73.985, 0},
             {34.978, 0, 0},
             {84.16, 12.719, 0},
             {0, 135.25, 0},
@@ -43,7 +42,6 @@ std::vector<cv::Point3d> DeepSpaceTargetModel::GetSubTargetKeyPoints(int subTarg
     else
     {
         keyPoints = std::vector<cv::Point3d> {
-            {311.951, 73.985, 0},
             {336.542, 0, 0},
             {287.36, 12.719, 0},
             {371.52, 135.25, 0},

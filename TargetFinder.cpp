@@ -274,22 +274,6 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const cv::
     for (auto& target : targets)
     {
         // Set image points
-        /*
-        std::vector<cv::Point2d> imagePoints
-        {
-            target.center,
-            target.sections[0].corners[0],
-            target.sections[1].corners[0],
-            target.sections[0].corners[1],
-            target.sections[1].corners[1],
-            target.sections[0].corners[2],
-            target.sections[1].corners[2],
-            target.sections[0].corners[3],
-            target.sections[1].corners[3]
-        };
-        */
-
-        // Set image points
         std::vector<cv::Point2d> imagePoints;
 
         if (target.sections.size() == 2)
@@ -311,13 +295,13 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const cv::
         }
         else if (target.sections.size() == 1)
         {
+            // Use the appropriate half of the target - do not use the center point of the target
             if (target.sections[0].rect.angle < 90)
             {
                 keyPoints = _targetModel->GetSubTargetKeyPoints(0);
 
                 imagePoints = std::vector<cv::Point2d>
                 {
-                    target.center,
                     target.sections[0].corners[2],
                     target.sections[0].corners[3],
                     target.sections[0].corners[1],
@@ -330,7 +314,6 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const cv::
 
                 imagePoints = std::vector<cv::Point2d>
                 {
-                    target.center,
                     target.sections[0].corners[2],
                     target.sections[0].corners[1],
                     target.sections[0].corners[3],
@@ -364,8 +347,6 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const cv::
             continue;
         }
 
-        // TODO Translate from camera to robot
-
         // Convert rotation vector to rotation matrix
         cv::Mat R;
         cv::Rodrigues(rvec, R);
@@ -393,21 +374,25 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const cv::
         euler[1] *= (180/CV_PI);
         euler[2] *= (180/CV_PI);
 
+        // Offset the target center to the true center of the target - the above solution is "centered" on the left-most point of the target (i.e. x = 0)
         cv::Point3d centerOffset(keyPoints[0].x, keyPoints[0].y, keyPoints[0].z);
 
-        // Double offset when using a half target TODO
+        // Adjust offset when only half of the target is found
         if (target.sections.size() == 1)
         { 
             if (target.sections[0].rect.angle < 90)
             {
-                centerOffset.x *= 2;
+                // TODO - do we need to adjust the offset if we found the left half of the target?
             }
             else
             {
-                centerOffset.x /= 2;
+                // Flip the X offset if we found the right half of the target
+                centerOffset.x *= -1;
             }
             
         }
+
+        // TODO Translate from camera to robot
 
         target.data.status = VisionStatus::TargetFound;
         target.data.x = tvec.at<double>(0,0) - centerOffset.x;
@@ -531,7 +516,11 @@ void TargetFinder::DrawDebugImage(cv::Mat& image, const std::vector<Target>& tar
     }
 }
 
-/* Old corner detection using FAST - still works, but minarearect version seems to be more robust
+/* 
+
+Old corner detection using FAST - still works, but minarearect version seems to be more robust
+This has the advantage of finding true corners of the target and not relying on the subpixel finder to "narrow in" on the corners
+The corners from the minarearect version will be skewed when the camera is at an extreme perspective - the sublpixel finder handles this OK for now
 
 void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::Point>>& contours, std::vector<TargetSection>& sections, const cv::Size size)
 {
