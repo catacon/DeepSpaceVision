@@ -72,7 +72,9 @@ DeepSpaceVision::DeepSpaceVision(std::vector<spdlog::sink_ptr> sinks)
     {
         if (_hatchCapture->isOpened())
         {
-            _hatchProcessor = std::make_unique<DeepSpaceProcessor>(sinks, "Hatch", _hatchCapture);  
+            cv::Vec3d offset(Setup::Processing::HatchOffset, 0, 0);
+
+            _hatchProcessor = std::make_unique<DeepSpaceProcessor>(sinks, "Hatch", _hatchCapture, offset);  
         }
         else
         {           
@@ -89,7 +91,9 @@ DeepSpaceVision::DeepSpaceVision(std::vector<spdlog::sink_ptr> sinks)
     {
         if (_cargoCapture->isOpened())
         {
-            _cargoProcessor = std::make_unique<DeepSpaceProcessor>(sinks, "Cargo", _cargoCapture);
+            cv::Vec3d offset(Setup::Processing::CargoOffset, 0, 0);
+
+            _cargoProcessor = std::make_unique<DeepSpaceProcessor>(sinks, "Cargo", _cargoCapture, offset);
         }
         else
         {
@@ -159,10 +163,12 @@ void DeepSpaceVision::Process()
             // TODO check return? - shutdown after so any failed attempts?
         }
 
+        // Apply robot-specific offsets
+
         // Pack results
         std::vector<VisionMessage> messages
         {
-            VisionMessage { 0, hatchData },
+            VisionMessage { Setup::Camera::HatchCameraId, hatchData },
             VisionMessage { Setup::Camera::CargoCameraId, cargoData }
         };
 

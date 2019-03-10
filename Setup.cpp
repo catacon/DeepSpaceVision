@@ -29,6 +29,8 @@ namespace Setup
         spdlog::level::level_enum LogLevel = spdlog::level::debug;
         bool DisplayDebugImages = false;
         bool RecordVideo = false;
+        bool RecordProcessedVideo = false;
+        std::string RecordVideoPath = "";
         bool ReadSetupFile = false;
         int WaitKeyDelay = 10;
     }
@@ -43,10 +45,14 @@ namespace Setup
         int CornerDistanceThreshold = 2;
         double MinAngleDiff = 90;
         double MaxAngleDiff = 180;
-        double MaxTargetSeparation = 160;
+        double TargetSeparationThreshold = 0.05;
         int MaxCornerSubPixelIterations = 100;
         double CornerSubPixelThreshold = 0.1;
         bool UseWorldCoordinates = true;
+        double HatchOffset = 0;
+        double CargoOffset = 0;
+        double ImageEdgeThreshold = 10;
+        bool ProcessHalfTargets = false;
     }
 
     namespace HSVFilter
@@ -81,6 +87,8 @@ namespace Setup
             ini.SetLongValue("Diagnostics", "LogLevel", (int)Diagnostics::LogLevel);
             ini.SetBoolValue("Diagnostics", "DisplayDebugImages", Diagnostics::DisplayDebugImages);     
             ini.SetBoolValue("Diagnostics", "RecordVideo", Diagnostics::RecordVideo);       
+            ini.SetBoolValue("Diagnostics", "RecordProcessedVideo", Diagnostics::RecordProcessedVideo); 
+            ini.SetValue("Diagnostics", "RecordVideoPath", Diagnostics::RecordVideoPath.c_str());        
             ini.SetBoolValue("Diagnostics", "ReadSetupFile", Diagnostics::ReadSetupFile);   
             ini.SetLongValue("Diagnostics", "WaitKeyDelay", Diagnostics::WaitKeyDelay);   
 
@@ -93,10 +101,14 @@ namespace Setup
             ini.SetLongValue("Processing", "CornerDistanceThreshold", Processing::CornerDistanceThreshold);
             ini.SetDoubleValue("Processing", "MinAngleDiff", Processing::MinAngleDiff);
             ini.SetDoubleValue("Processing", "MaxAngleDiff", Processing::MaxAngleDiff);
-            ini.SetDoubleValue("Processing", "MaxTargetSeparation", Processing::MaxTargetSeparation);
+            ini.SetDoubleValue("Processing", "TargetSeparationThreshold", Processing::TargetSeparationThreshold);
             ini.SetLongValue("Processing", "MaxCornerSubPixelIterations", Processing::MaxCornerSubPixelIterations);
             ini.SetDoubleValue("Processing", "CornerSubPixelThreshold", Processing::CornerSubPixelThreshold);
             ini.SetBoolValue("Processing", "UseWorldCoordinates", Processing::UseWorldCoordinates);  
+            ini.SetDoubleValue("Processing", "HatchOffset", Processing::HatchOffset);
+            ini.SetDoubleValue("Processing", "CargoOffset", Processing::CargoOffset);
+            ini.SetDoubleValue("Processing", "ImageEdgeThreshold", Processing::ImageEdgeThreshold);
+            ini.SetBoolValue("Processing", "ProcessHalfTargets", Processing::ProcessHalfTargets);  
 
             // HSVFilter
             ini.SetLongValue("HSVFilter", "LowH", HSVFilter::LowH);
@@ -136,7 +148,9 @@ namespace Setup
             Diagnostics::TestVideoPath = ini.GetValue("Diagnostics", "TestVideoPath", Diagnostics::TestVideoPath.c_str());
             Diagnostics::LogLevel = (spdlog::level::level_enum)ini.GetLongValue("Diagnostics", "LogLevel", Diagnostics::LogLevel);
             Diagnostics::DisplayDebugImages = ini.GetBoolValue("Diagnostics", "DisplayDebugImages", Diagnostics::DisplayDebugImages);     
-            Diagnostics::RecordVideo = ini.GetBoolValue("Diagnostics", "RecordVideo", Diagnostics::RecordVideo);       
+            Diagnostics::RecordVideo = ini.GetBoolValue("Diagnostics", "RecordVideo", Diagnostics::RecordVideo);   
+            Diagnostics::RecordProcessedVideo = ini.GetBoolValue("Diagnostics", "RecordProcessedVideo", Diagnostics::RecordProcessedVideo);       
+            Diagnostics::RecordVideoPath = ini.GetValue("Diagnostics", "RecordVideoPath", Diagnostics::RecordVideoPath.c_str());                    
             Diagnostics::ReadSetupFile = ini.GetBoolValue("Diagnostics", "ReadSetupFile", Diagnostics::ReadSetupFile);      
             Diagnostics::WaitKeyDelay = ini.GetLongValue("Diagnostics", "WaitKeyDelay", Diagnostics::WaitKeyDelay);   
 
@@ -150,10 +164,14 @@ namespace Setup
             Processing::CornerDistanceThreshold = ini.GetLongValue("Processing", "CornerDistanceThreshold", Processing::CornerDistanceThreshold);
             Processing::MinAngleDiff = ini.GetDoubleValue("Processing", "MinAngleDiff", Processing::MinAngleDiff);
             Processing::MaxAngleDiff = ini.GetDoubleValue("Processing", "MaxAngleDiff", Processing::MaxAngleDiff);
-            Processing::MaxTargetSeparation = ini.GetDoubleValue("Processing", "MaxTargetSeparation", Processing::MaxTargetSeparation);
+            Processing::TargetSeparationThreshold = ini.GetDoubleValue("Processing", "TargetSeparationThreshold", Processing::TargetSeparationThreshold);
             Processing::MaxCornerSubPixelIterations = ini.GetLongValue("Processing", "MaxCornerSubPixelIterations", Processing::MaxCornerSubPixelIterations);
             Processing::CornerSubPixelThreshold = ini.GetDoubleValue("Processing", "CornerSubPixelThreshold", Processing::CornerSubPixelThreshold);
             Processing::UseWorldCoordinates = ini.GetBoolValue("Processing", "UseWorldCoordinates", Processing::UseWorldCoordinates);
+            Processing::HatchOffset = ini.GetDoubleValue("Processing", "HatchOffset", Processing::HatchOffset);
+            Processing::CargoOffset = ini.GetDoubleValue("Processing", "CargoOffset", Processing::CargoOffset);
+            Processing::ImageEdgeThreshold = ini.GetDoubleValue("Processing", "ImageEdgeThreshold", Processing::ImageEdgeThreshold);
+            Processing::ProcessHalfTargets = ini.GetBoolValue("Processing", "UseWorldCoordinates", Processing::UseWorldCoordinates);  
 
             // HSVFilter
             HSVFilter::LowH = ini.GetLongValue("HSVFilter", "LowH", HSVFilter::LowH);

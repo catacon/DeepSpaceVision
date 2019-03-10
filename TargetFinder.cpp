@@ -6,10 +6,11 @@
 
 using namespace Lightning;
 
-TargetFinder::TargetFinder(std::vector<spdlog::sink_ptr> sinks, std::string name, std::unique_ptr<TargetModel> targetModel, std::unique_ptr<CameraModel> cameraModel)
+TargetFinder::TargetFinder(std::vector<spdlog::sink_ptr> sinks, std::string name, std::unique_ptr<TargetModel> targetModel, std::unique_ptr<CameraModel> cameraModel, cv::Vec3d offsets)
     : _targetModel(std::move(targetModel))
     , _cameraModel(std::move(cameraModel))
     , _name(name)
+    , _offset(offsets)
 {
     _logger = std::make_shared<spdlog::logger>(name, sinks.begin(), sinks.end());
     _logger->set_level(Lightning::Setup::Diagnostics::LogLevel);
@@ -170,6 +171,19 @@ void TargetFinder::TargetSectionsFromContours(const std::vector<std::vector<cv::
             // Get bounding box and angle
             auto rect = cv::minAreaRect(contours[i]);
 
+
+            // Reject contour if it is too close to the edge of the image
+
+            double imageEdgeThreshold = Setup::Processing::ImageEdgeThreshold;
+            
+            if (rect.center.x < imageEdgeThreshold || 
+                rect.center.x > Setup::Camera::Width - imageEdgeThreshold || 
+                rect.center.y < imageEdgeThreshold ||
+                rect.center.y > Setup::Camera::Height - imageEdgeThreshold)
+                {
+                    continue;
+                }
+
             // Save corner points
             std::vector<cv::Point2f> points(4);
             rect.points(points.data());
@@ -204,7 +218,7 @@ void TargetFinder::SortTargetSections(const std::vector<TargetSection>& sections
             double centerDiff = Distance(sections[i].center, sections[j].center);
 
             // Adjust target separation threshold based on target size which correlates to distance
-            double targetSeparationThreshold = sections[i].area * 0.05 + 77;    // TODO tune
+            double targetSeparationThreshold = sections[i].area * Setup::Processing::TargetSeparationThreshold + 77;    // TODO tune
 
             if (angleDiff > Setup::Processing::MinAngleDiff && angleDiff < Setup::Processing::MaxAngleDiff && centerDiff < targetSeparationThreshold)
             {
@@ -293,7 +307,7 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const cv::
                 target.sections[1].corners[0]
             };
         }
-        else if (target.sections.size() == 1)
+        else if (target.sections.size() == 1 && Setup::Processing::ProcessHalfTargets)
         {
             // Use the appropriate half of the target - do not use the center point of the target
             if (target.sections[0].rect.angle < 90)
@@ -347,6 +361,11 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const cv::
             continue;
         }
 
+        // Apply robot-to-camera offsets while solution is still in robot coordinates
+        tvec.at<double>(0,0) -= _offset[0];
+        tvec.at<double>(1,0) -= _offset[1];
+        tvec.at<double>(2,0) -= _offset[2];
+
         // Convert rotation vector to rotation matrix
         cv::Mat R;
         cv::Rodrigues(rvec, R);
@@ -377,22 +396,17 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const cv::
         // Offset the target center to the true center of the target - the above solution is "centered" on the left-most point of the target (i.e. x = 0)
         cv::Point3d centerOffset(keyPoints[0].x, keyPoints[0].y, keyPoints[0].z);
 
-        // Adjust offset when only half of the target is found
+        // TODO Adjust offset when only half of the target is found
         if (target.sections.size() == 1)
         { 
             if (target.sections[0].rect.angle < 90)
             {
-                // TODO - do we need to adjust the offset if we found the left half of the target?
+                
             }
             else
             {
-                // Flip the X offset if we found the right half of the target
-                centerOffset.x *= -1;
-            }
-            
+            }          
         }
-
-        // TODO Translate from camera to robot
 
         target.data.status = VisionStatus::TargetFound;
         target.data.x = tvec.at<double>(0,0) - centerOffset.x;
@@ -405,6 +419,17 @@ void TargetFinder::FindTargetTransforms(std::vector<Target>& targets, const cv::
         target.data.imageY = ((imageSize.height / 2.0) - target.center.y) / (imageSize.height / 2.0);
         target.rvec = rvec;
         target.tvec = tvec;
+
+        double theta = (180/ CV_PI) * atan2(target.data.x, target.data.z);
+        if (target.data.x > 0)
+        {
+            target.theta = 180 - theta;
+        } 
+        else
+        {
+            target.theta = -(theta + 180);
+        }
+        target.robotDistance = (std::sqrt(std::pow(target.data.x, 2) + std::pow(target.data.z, 2)) / 25.4);
     }
 
 }
@@ -459,6 +484,13 @@ void TargetFinder::DrawDebugImage(cv::Mat& image, const std::vector<Target>& tar
         // Project target points back onto image
         cv::Mat rvec = targets[target].rvec;
         cv::Mat tvec = targets[target].tvec;
+
+        // Undo offsets camera-to-robot offsets so image is drawn correctly
+        tvec.at<double>(0,0) += _offset[0];
+        tvec.at<double>(1,0) += _offset[1];
+        tvec.at<double>(2,0) += _offset[2];
+
+
         if (Setup::Processing::UseWorldCoordinates)
         {
             targets[target].GetInverseTransforms(rvec, tvec);
@@ -506,8 +538,8 @@ void TargetFinder::DrawDebugImage(cv::Mat& image, const std::vector<Target>& tar
         imageText.push_back(fmt::format("Pitch: {:03.1f}", targets[target].data.pitch));
         imageText.push_back(fmt::format("Yaw: {:03.1f}", targets[target].data.yaw));
 
-        imageText.push_back(fmt::format("ImageX: {:03.1f}", targets[target].data.imageX));
-        imageText.push_back(fmt::format("ImageY: {:03.1f}", targets[target].data.imageY));
+        imageText.push_back(fmt::format("Theta: {:03.1f}", targets[target].theta));
+        imageText.push_back(fmt::format("rDist: {:03.1f}", targets[target].robotDistance));
 
         for (int i = 0; i < (int)imageText.size(); ++i)
         {

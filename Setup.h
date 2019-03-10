@@ -56,8 +56,14 @@ namespace Setup
         // Display development images
         extern bool DisplayDebugImages;
 
-        // Record and save diagnostic video
+        // Record and save raw video for diagnostics
         extern bool RecordVideo;
+
+        // Record and save processed video
+        extern bool RecordProcessedVideo;
+
+        // Folder in which to save videos
+        extern std::string RecordVideoPath;
 
         // Read setup file during execution to adjust program behavior in real time
         extern bool ReadSetupFile;
@@ -92,8 +98,8 @@ namespace Setup
         // Maximum angle difference between target sections in degrees
         extern double MaxAngleDiff;
 
-        // Maximum separation of target sections in pixels
-        extern double MaxTargetSeparation;
+        // Maximum separation of target sections - larger number allows larger target separation
+        extern double TargetSeparationThreshold;
 
         // Number of iterations for corner subpixel calculation
         extern int MaxCornerSubPixelIterations;
@@ -103,6 +109,18 @@ namespace Setup
 
         // Switch for world coordinates or camera coordinates in final answer
         extern bool UseWorldCoordinates;
+
+        // X Offset for hatch camera in millimeters
+        extern double HatchOffset;
+
+        // X Offset for cargo camera in millimeters
+        extern double CargoOffset;
+
+        // Distance from edge of image before contour is rejected
+        extern double ImageEdgeThreshold;
+
+        // Flag to allow processing of half targets
+        extern bool ProcessHalfTargets;
     }
     
     namespace HSVFilter

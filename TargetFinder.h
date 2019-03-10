@@ -18,7 +18,7 @@ class TargetFinder
 
 public:
 
-    TargetFinder(std::vector<spdlog::sink_ptr>, std::string, std::unique_ptr<TargetModel>, std::unique_ptr<CameraModel>);
+    TargetFinder(std::vector<spdlog::sink_ptr>, std::string, std::unique_ptr<TargetModel>, std::unique_ptr<CameraModel>, cv::Vec3d);
 
     bool Process(cv::Mat&, std::vector<VisionData>&);
 
@@ -56,6 +56,8 @@ private:
     std::unique_ptr<CameraModel> _cameraModel;
 
     std::vector<std::pair<std::string, cv::Mat>> _debugImages;
+
+    cv::Vec3d _offset;
 
     std::string _name;
 };

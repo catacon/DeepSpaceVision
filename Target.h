@@ -31,6 +31,8 @@ public:
     VisionData data;
     cv::Mat rvec;
     cv::Mat tvec;
+    double theta;
+    double robotDistance;
 
     void GetInverseTransforms(cv::Mat&, cv::Mat&) const;
 };
