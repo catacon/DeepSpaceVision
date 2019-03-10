@@ -479,6 +479,11 @@ void TargetFinder::DrawDebugImage(cv::Mat& image, const std::vector<Target>& tar
     cv::RNG rng(12345);
     for (int target = 0; target < (int)targets.size(); ++target)
     {            
+        if (targets[target].sections.size() == 1 && !Setup::Processing::ProcessHalfTargets)
+        {
+            continue;
+        }
+
         cv::Scalar color(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
 
         // Project target points back onto image

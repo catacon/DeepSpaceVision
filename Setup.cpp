@@ -171,7 +171,7 @@ namespace Setup
             Processing::HatchOffset = ini.GetDoubleValue("Processing", "HatchOffset", Processing::HatchOffset);
             Processing::CargoOffset = ini.GetDoubleValue("Processing", "CargoOffset", Processing::CargoOffset);
             Processing::ImageEdgeThreshold = ini.GetDoubleValue("Processing", "ImageEdgeThreshold", Processing::ImageEdgeThreshold);
-            Processing::ProcessHalfTargets = ini.GetBoolValue("Processing", "UseWorldCoordinates", Processing::UseWorldCoordinates);  
+            Processing::ProcessHalfTargets = ini.GetBoolValue("Processing", "ProcessHalfTargets", Processing::ProcessHalfTargets);  
 
             // HSVFilter
             HSVFilter::LowH = ini.GetLongValue("HSVFilter", "LowH", HSVFilter::LowH);
